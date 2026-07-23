@@ -285,6 +285,17 @@
 </div>
 </sc-if>
 
+<sc-if value="{{ camFab }}" hint-placeholder-val="{{ false }}">
+<button onClick="{{ openCam }}" style="position:absolute;right:16px;bottom:calc(88px + env(safe-area-inset-bottom, 0px));z-index:40;height:52px;padding:0 18px;border:none;border-radius:26px;background:#17191e;color:#fff;font:700 13px Commissioner,sans-serif;display:flex;align-items:center;gap:10px;box-shadow:0 6px 16px rgba(0,0,0,.3)"><span style="width:34px;height:16px;background:repeating-linear-gradient(90deg,#fff 0 2px,transparent 2px 5px,#fff 5px 6px,transparent 6px 9px)"></span>Scan</button>
+</sc-if>
+<sc-if value="{{ camOpen }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;background:#000;z-index:70;display:flex;flex-direction:column">
+  <video ref="{{ videoRef }}" autoPlay="{{ true }}" muted="{{ true }}" playsInline="{{ true }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></video>
+  <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none"><div style="width:78%;height:160px;border:2.5px solid #ed872d;border-radius:14px;box-shadow:0 0 0 2000px rgba(0,0,0,.45)"></div></div>
+  <div style="position:absolute;top:calc(14px + env(safe-area-inset-top, 0px));left:0;right:0;text-align:center;font:700 13.5px Commissioner,sans-serif;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.6)">Στόχευσε το barcode</div>
+  <button onClick="{{ closeCam }}" style="position:absolute;bottom:calc(24px + env(safe-area-inset-bottom, 0px));left:50%;transform:translateX(-50%);height:50px;padding:0 26px;border:none;border-radius:25px;background:rgba(255,255,255,.92);color:#17191e;font:700 14px Commissioner,sans-serif">Κλείσιμο</button>
+</div>
+</sc-if>
 <sc-if value="{{ flashOk }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;inset:0;background:rgba(34,165,92,.3);z-index:50;pointer-events:none;animation:omflash .35s ease-out forwards"></div></sc-if>
 <sc-if value="{{ flashErr }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;inset:0;background:rgba(224,82,82,.35);z-index:50;pointer-events:none;animation:omflash .45s ease-out forwards"></div></sc-if>
 <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;bottom:90px;left:22px;right:22px;background:#17191e;color:#fff;border-radius:14px;padding:12px 16px;font-size:13px;font-weight:600;text-align:center;z-index:60;animation:omtoast .2s ease-out;box-shadow:0 8px 24px rgba(0,0,0,.3)">{{ toastText }}</div></sc-if>
@@ -316,9 +327,40 @@ class Component extends DCLogic {
     repl: { phase: 'item', sku: null, qty: 0, from: null },
     mov: { phase: 'item', sku: null, qty: 0, from: null },
     cnt: { i: 0, phase: 'loc', qty: '' }, doneCnt: false,
-    searchQ: '', searchRes: null,
+    searchQ: '', searchRes: null, cam: false,
     lbl: { sku: 'SAMR173', copies: 2, q: '' }
   };
+  async openCam() {
+    this.setState({ cam: true });
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      this.stream = stream;
+      const v = this.videoEl; if (!v) { this.closeCam(); return; }
+      v.srcObject = stream; await v.play();
+      if ('BarcodeDetector' in window) {
+        const det = new window.BarcodeDetector({ formats: ['code_128', 'code_39', 'ean_13', 'ean_8', 'upc_a', 'upc_e', 'qr_code'] });
+        this.camLoop = setInterval(async () => {
+          try { const codes = await det.detect(v); if (codes.length) this.camHit(codes[0].rawValue); } catch (e) { }
+        }, 280);
+      } else {
+        const z = await import('https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/+esm');
+        this.zctl = await new z.BrowserMultiFormatReader().decodeFromVideoElement(v, (res) => { if (res) this.camHit(res.getText()); });
+      }
+    } catch (e) { this.showToast('Δεν δόθηκε πρόσβαση στην κάμερα'); this.closeCam(); }
+  }
+  camHit(text) {
+    const now = Date.now();
+    if (this.lastHit && now - this.lastHit < 1600) return;
+    this.lastHit = now;
+    this.closeCam();
+    this.onScan(text);
+  }
+  closeCam() {
+    if (this.camLoop) { clearInterval(this.camLoop); this.camLoop = null; }
+    if (this.zctl) { try { this.zctl.stop(); } catch (e) { } this.zctl = null; }
+    if (this.stream) { this.stream.getTracks().forEach(t => t.stop()); this.stream = null; }
+    this.setState({ cam: false });
+  }
   C128 = ('212222 222122 222221 121223 121322 131222 122213 122312 132212 221213 221312 231212 112232 122132 122231 113222 123122 123221 223211 221132 221231 213212 223112 312131 311222 321122 321221 312212 322112 322211 212123 212321 232121 111323 131123 131321 112313 132113 132311 211313 231113 231311 112133 112331 132131 113123 113321 133121 313121 211331 231131 213113 213311 213131 311123 311321 331121 312113 312311 332111 314111 221411 431111 111224 111422 121124 121421 141122 141221 112214 112412 122114 122411 142112 142211 241211 221114 413111 241112 134111 111242 121142 121241 114212 124112 124211 411212 421112 421211 212141 214121 412121 111143 111341 131141 114113 114311 411113 411311 113141 114131 311141 411131 211412 211214 211232').split(' ');
   barsFor(t) {
     t = String(t || '');
@@ -375,7 +417,7 @@ class Component extends DCLogic {
     };
     window.addEventListener('keydown', this.kd);
   }
-  componentWillUnmount() { window.removeEventListener('keydown', this.kd); this.mq && this.mq.removeEventListener('change', this.onMq); this.timers && this.timers.forEach(clearTimeout); }
+  componentWillUnmount() { window.removeEventListener('keydown', this.kd); this.mq && this.mq.removeEventListener('change', this.onMq); this.closeCam(); this.timers && this.timers.forEach(clearTimeout); }
   later(fn, ms) { (this.timers = this.timers || []).push(setTimeout(fn, ms)); }
   beep(ok) {
     if ((this.props.sound ?? true) === false) return;
@@ -613,6 +655,11 @@ class Component extends DCLogic {
       pinDots: [0, 1, 2, 3].map(i => ({ bg: i < s.pin.length ? '#ed872d' : '#eceef2' })),
       keys, modules, totalTasks,
       flashOk: s.flashOk, flashErr: s.flashErr, hasToast: !!s.toast, toastText: s.toast,
+      camFab: mob && !s.cam && s.screen !== 'login',
+      camOpen: s.cam,
+      openCam: () => this.openCam(),
+      closeCam: () => this.closeCam(),
+      videoRef: (el) => { this.videoEl = el; },
       deskPad: mob ? '0' : '28px',
       devW: mob ? '100%' : '360px', devH: mob ? '100dvh' : '720px',
       devBorder: mob ? 'none' : '6px solid #24262b', devRadius: mob ? '0' : '28px',
