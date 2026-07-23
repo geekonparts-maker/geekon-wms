@@ -68,7 +68,7 @@
     <sc-if value="{{ hasResult }}" hint-placeholder-val="{{ false }}">
       <div style="background:{{ tCard }};border-radius:18px;padding:16px 17px;box-shadow:0 2px 8px rgba(23,25,30,.05)">
         <div style="font:700 13px 'IBM Plex Mono',monospace;color:#ed872d">{{ resTitle }}</div>
-        <div style="font-size:15px;font-weight:700;color:{{ tText }};margin-top:3px;line-height:1.35">{{ resSub }}</div>
+        <div style="font-size:15px;font-weight:700;color:{{ tText }};margin-top:3px;line-height:1.35">{{ resSub }}</div><div style="font-size:11.5px;font-weight:700;color:{{ tSub }};margin-top:2px">{{ resMfr }}</div>
         <div style="margin-top:12px;display:flex;flex-direction:column">
           <sc-for list="{{ resRows }}" as="r" hint-placeholder-count="2"><div style="display:flex;justify-content:space-between;padding:9px 0;border-top:1px solid {{ tBorder }}"><span style="font:600 13px 'IBM Plex Mono',monospace;color:{{ tText }}">{{ r.a }}</span><span style="font-size:13px;font-weight:700;color:#22a55c">{{ r.b }}</span></div></sc-for>
         </div>
@@ -138,7 +138,7 @@
   <sc-if value="{{ pickListClosed }}" hint-placeholder-val="{{ true }}">
   <div style="flex:1;padding:14px 18px;display:flex;flex-direction:column;gap:11px;overflow:auto">
     <div style="background:{{ tCard }};border-radius:18px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(23,25,30,.05)"><div style="font-size:10.5px;font-weight:800;letter-spacing:2px;color:#9aa0ab">ΘΕΣΗ</div><div style="font:700 21px 'IBM Plex Mono',monospace;letter-spacing:.5px;color:{{ tText }};margin-top:6px">{{ pickLoc }}</div><div style="display:inline-block;margin-top:6px;font-size:11.5px;font-weight:700;color:#ed872d;background:{{ tTint }};border-radius:12px;padding:4px 11px">{{ pickZone }}</div></div>
-    <div style="background:{{ tCard }};border-radius:18px;padding:13px 15px;display:flex;flex-direction:column;gap:5px;box-shadow:0 2px 8px rgba(23,25,30,.05)"><div style="display:flex;justify-content:space-between"><span style="font:700 12px 'IBM Plex Mono',monospace;color:#ed872d">{{ pickSku }}</span><span style="font-size:12px;font-weight:600;color:#9aa0ab">Παρτίδα {{ pickLot }}</span></div><div style="font-size:14.5px;font-weight:700;color:{{ tText }};line-height:1.35">{{ pickName }}</div><div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:4px"><span style="font-size:13px;font-weight:700;color:#9aa0ab">Ποσότητα</span><span style="font:700 32px 'IBM Plex Mono',monospace;color:#ed872d">{{ pickGot }}<span style="font-size:19px;color:#9aa0ab">/{{ pickQty }}</span></span></div></div>
+    <div style="background:{{ tCard }};border-radius:18px;padding:13px 15px;display:flex;flex-direction:column;gap:5px;box-shadow:0 2px 8px rgba(23,25,30,.05)"><div style="display:flex;justify-content:space-between"><span style="font:700 12px 'IBM Plex Mono',monospace;color:#ed872d">{{ pickSku }}</span><span style="font-size:12px;font-weight:700;color:{{ tSub }}">{{ pickMfr }}</span><span style="font-size:12px;font-weight:600;color:#9aa0ab">Παρτίδα {{ pickLot }}</span></div><div style="font-size:14.5px;font-weight:700;color:{{ tText }};line-height:1.35">{{ pickName }}</div><div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:4px"><span style="font-size:13px;font-weight:700;color:#9aa0ab">Ποσότητα</span><span style="font:700 32px 'IBM Plex Mono',monospace;color:#ed872d">{{ pickGot }}<span style="font-size:19px;color:#9aa0ab">/{{ pickQty }}</span></span></div></div>
     <div style="border:2px dashed #ed872d;background:{{ tTint }};border-radius:16px;padding:12px;text-align:center"><div style="font-size:13.5px;font-weight:700;color:{{ tDeep }}">{{ pickLeftText }}</div><div style="font-size:11.5px;font-weight:600;color:#9aa0ab;margin-top:2px">Μπορείς να σαρώσεις όποιο είδος της παραγγελίας θες — γεμίζει η δική του ποσότητα</div></div>
     <button onClick="{{ openPickFill }}" style="height:46px;border:1.5px solid {{ tBorder }};border-radius:23px;background:{{ tCard }};font:700 13px Commissioner,sans-serif;color:{{ tText }}">Αναπλήρωση θέσης {{ pickLoc }}</button>
     <div style="margin-top:auto;background:{{ tCard }};border-radius:16px;padding:11px 16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 8px rgba(23,25,30,.05)"><span style="font-size:11px;font-weight:800;letter-spacing:1.5px;color:#9aa0ab">ΕΠΟΜΕΝΟ</span><span style="font:600 12.5px 'IBM Plex Mono',monospace;color:{{ tText }}">{{ pickNextText }}</span></div>
@@ -179,7 +179,7 @@
     <div style="display:flex;justify-content:space-between;align-items:center"><button onClick="{{ goHome }}" style="width:36px;height:36px;border:none;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;font-size:18px">‹</button><div style="text-align:center"><div style="font-size:15px;font-weight:800;color:#fff">Παραλαβή</div><div style="font-size:11.5px;font-weight:600;color:rgba(255,255,255,.8)">ASN-3021 · Alpha Parts Ltd</div></div><span style="font:700 12px 'IBM Plex Mono',monospace;background:rgba(255,255,255,.2);color:#fff;padding:4px 9px;border-radius:10px">{{ rcvProg }}</span></div>
   </div>
   <div style="flex:1;padding:14px 18px;display:flex;flex-direction:column;gap:10px;overflow:auto">
-    <sc-for list="{{ rcvRows }}" as="r" hint-placeholder-count="3"><div style="background:{{ tCard }};border-radius:16px;padding:13px 15px;box-shadow:0 2px 8px rgba(23,25,30,.05)"><div style="display:flex;justify-content:space-between;align-items:center"><span style="font:700 12px 'IBM Plex Mono',monospace;color:#ed872d">{{ r.sku }}</span><span style="font:700 15px 'IBM Plex Mono',monospace;color:{{ r.color }}">{{ r.prog }}</span></div><div style="font-size:13.5px;font-weight:600;color:{{ tText }};margin-top:3px;line-height:1.3">{{ r.name }}</div><div style="height:4px;background:{{ tChip }};border-radius:2px;margin-top:9px"><div style="width:{{ r.pct }};height:100%;background:#22a55c;border-radius:2px;transition:width .3s"></div></div></div></sc-for>
+    <sc-for list="{{ rcvRows }}" as="r" hint-placeholder-count="3"><div style="background:{{ tCard }};border-radius:16px;padding:13px 15px;box-shadow:0 2px 8px rgba(23,25,30,.05)"><div style="display:flex;justify-content:space-between;align-items:center"><span style="font:700 12px 'IBM Plex Mono',monospace;color:#ed872d">{{ r.sku }}</span><span style="font:700 15px 'IBM Plex Mono',monospace;color:{{ r.color }}">{{ r.prog }}</span></div><div style="font-size:13.5px;font-weight:600;color:{{ tText }};margin-top:3px;line-height:1.3">{{ r.name }}</div><div style="font-size:11px;font-weight:700;color:{{ tSub }};margin-top:2px">{{ r.mfr }}</div><div style="height:4px;background:{{ tChip }};border-radius:2px;margin-top:9px"><div style="width:{{ r.pct }};height:100%;background:#22a55c;border-radius:2px;transition:width .3s"></div></div></div></sc-for>
     <div style="border:2px dashed #ed872d;background:{{ tTint }};border-radius:16px;padding:13px;text-align:center;font-size:13px;font-weight:700;color:{{ tDeep }}">{{ rcvHint }}</div>
     <sc-if value="{{ rcvComplete }}" hint-placeholder-val="{{ false }}"><button onClick="{{ closeRcv }}" style="margin-top:auto;height:56px;border:none;border-radius:28px;background:#22a55c;color:#fff;font:800 15px Commissioner,sans-serif;box-shadow:0 6px 16px rgba(34,165,92,.35)">Κλείσιμο παραλαβής</button></sc-if>
   </div>
@@ -193,7 +193,7 @@
   </div>
   <div style="flex:1;padding:16px 18px;display:flex;flex-direction:column;gap:12px;overflow:auto">
     <sc-if value="{{ putPhaseItem }}" hint-placeholder-val="{{ false }}">
-      <div style="background:{{ tCard }};border-radius:20px;padding:20px;text-align:center;box-shadow:0 2px 8px rgba(23,25,30,.05)"><div style="font-size:11px;font-weight:800;letter-spacing:2px;color:#9aa0ab">ΣΑΡΩΣΕ ΤΟ ΠΡΟΪΟΝ</div><div style="font:700 34px 'IBM Plex Mono',monospace;color:{{ tText }};margin-top:8px">{{ putSku }}</div><div style="font-size:13px;font-weight:600;color:#9aa0ab;margin-top:6px">{{ putName }}</div></div>
+      <div style="background:{{ tCard }};border-radius:20px;padding:20px;text-align:center;box-shadow:0 2px 8px rgba(23,25,30,.05)"><div style="font-size:11px;font-weight:800;letter-spacing:2px;color:#9aa0ab">ΣΑΡΩΣΕ ΤΟ ΠΡΟΪΟΝ</div><div style="font:700 34px 'IBM Plex Mono',monospace;color:{{ tText }};margin-top:8px">{{ putSku }}</div><div style="font-size:13px;font-weight:600;color:#9aa0ab;margin-top:6px">{{ putName }}</div><div style="font-size:11.5px;font-weight:700;color:{{ tSub }};margin-top:3px">Κατασκευαστής: {{ putMfr }}</div></div>
       <div style="border:2px dashed #ed872d;background:{{ tTint }};border-radius:16px;padding:14px;text-align:center;font-size:13.5px;font-weight:700;color:{{ tDeep }}">Σάρωσε το barcode του προϊόντος</div>
     </sc-if>
     <sc-if value="{{ putPhaseLoc }}" hint-placeholder-val="{{ false }}">
@@ -210,7 +210,7 @@
     <div style="display:flex;justify-content:space-between;align-items:center"><button onClick="{{ goHome }}" style="width:36px;height:36px;border:none;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;font-size:18px">‹</button><div style="text-align:center"><div style="font-size:15px;font-weight:800;color:#fff">Packing</div><div style="font-size:11.5px;font-weight:600;color:rgba(255,255,255,.8)">SO-10471 · BOX-01</div></div><span style="font:700 12px 'IBM Plex Mono',monospace;background:rgba(255,255,255,.2);color:#fff;padding:4px 9px;border-radius:10px">{{ packProg }}</span></div>
   </div>
   <div style="flex:1;padding:14px 18px;display:flex;flex-direction:column;gap:10px;overflow:auto">
-    <sc-for list="{{ packRows }}" as="r" hint-placeholder-count="2"><div style="background:{{ tCard }};border-radius:16px;padding:13px 15px;box-shadow:0 2px 8px rgba(23,25,30,.05)"><div style="display:flex;justify-content:space-between;align-items:center"><span style="font:700 12px 'IBM Plex Mono',monospace;color:#ed872d">{{ r.sku }}</span><span style="font:700 15px 'IBM Plex Mono',monospace;color:{{ r.color }}">{{ r.prog }}</span></div><div style="font-size:13.5px;font-weight:600;color:{{ tText }};margin-top:3px;line-height:1.3">{{ r.name }}</div></div></sc-for>
+    <sc-for list="{{ packRows }}" as="r" hint-placeholder-count="2"><div style="background:{{ tCard }};border-radius:16px;padding:13px 15px;box-shadow:0 2px 8px rgba(23,25,30,.05)"><div style="display:flex;justify-content:space-between;align-items:center"><span style="font:700 12px 'IBM Plex Mono',monospace;color:#ed872d">{{ r.sku }}</span><span style="font:700 15px 'IBM Plex Mono',monospace;color:{{ r.color }}">{{ r.prog }}</span></div><div style="font-size:13.5px;font-weight:600;color:{{ tText }};margin-top:3px;line-height:1.3">{{ r.name }}</div><div style="font-size:11px;font-weight:700;color:{{ tSub }};margin-top:2px">{{ r.mfr }}</div></div></sc-for>
     <div style="border:2px dashed #ed872d;background:{{ tTint }};border-radius:16px;padding:13px;text-align:center;font-size:13px;font-weight:700;color:{{ tDeep }}">{{ packHint }}</div>
     <sc-if value="{{ packComplete }}" hint-placeholder-val="{{ false }}"><button onClick="{{ closePack }}" style="margin-top:auto;height:56px;border:none;border-radius:28px;background:#22a55c;color:#fff;font:800 15px Commissioner,sans-serif;box-shadow:0 6px 16px rgba(34,165,92,.35)">Κλείσιμο κιβωτίου &amp; ετικέτα</button></sc-if>
   </div>
@@ -228,7 +228,7 @@
         <div style="background:{{ tCard }};border-radius:20px;padding:24px 20px;text-align:center;box-shadow:0 2px 8px rgba(23,25,30,.05)"><div style="font-size:11px;font-weight:800;letter-spacing:2px;color:#9aa0ab">ΣΑΡΩΣΕ ΤΟ ΠΡΟΪΟΝ</div><div style="font-size:13px;font-weight:600;color:#9aa0ab;margin-top:8px;line-height:1.5">Σάρωσε το είδος που θα αναπληρώσεις.<br>Κάθε επιπλέον scan αυξάνει την ποσότητα.</div></div>
       </sc-if>
       <sc-if value="{{ replHasSku }}" hint-placeholder-val="{{ false }}">
-        <div style="background:{{ tCard }};border-radius:18px;padding:14px 16px;box-shadow:0 2px 8px rgba(23,25,30,.05)"><div style="display:flex;justify-content:space-between"><span style="font:700 13px 'IBM Plex Mono',monospace;color:#ed872d">{{ replSku }}</span></div><div style="font-size:14px;font-weight:700;color:{{ tText }};margin-top:3px;line-height:1.35">{{ replName }}</div></div>
+        <div style="background:{{ tCard }};border-radius:18px;padding:14px 16px;box-shadow:0 2px 8px rgba(23,25,30,.05)"><div style="display:flex;justify-content:space-between"><span style="font:700 13px 'IBM Plex Mono',monospace;color:#ed872d">{{ replSku }}</span></div><div style="font-size:14px;font-weight:700;color:{{ tText }};margin-top:3px;line-height:1.35">{{ replName }}</div><div style="font-size:11px;font-weight:700;color:{{ tSub }};margin-top:2px">Κατασκευαστής: {{ replMfr }}</div></div>
         <div style="background:{{ tCard }};border-radius:18px;padding:14px 16px;box-shadow:0 2px 8px rgba(23,25,30,.05);display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:11px;font-weight:800;letter-spacing:1.5px;color:#9aa0ab">ΠΟΣΟΤΗΤΑ</div><div style="font-size:11px;font-weight:600;color:#9aa0ab;margin-top:2px">scan +1 ή χειροκίνητα</div></div><div style="display:flex;align-items:center;gap:12px"><button onClick="{{ replMinus }}" style="width:44px;height:44px;border:none;border-radius:50%;background:{{ tChip }};font:700 20px Commissioner,sans-serif;color:{{ tText }}">−</button><span style="font:800 28px 'IBM Plex Mono',monospace;color:{{ tText }};min-width:44px;text-align:center">{{ replQty }}</span><button onClick="{{ replPlus }}" style="width:44px;height:44px;border:none;border-radius:50%;background:{{ tChip }};font:700 20px Commissioner,sans-serif;color:{{ tText }}">+</button></div></div>
         <button onClick="{{ replContinue }}" style="height:52px;border:none;border-radius:26px;background:#ed872d;color:#fff;font:800 14.5px Commissioner,sans-serif;box-shadow:0 4px 12px rgba(237,135,45,.35)">Συνέχεια — θέση προέλευσης ›</button>
       </sc-if>
@@ -253,7 +253,7 @@
       <div style="border:2px dashed #ed872d;background:{{ tTint }};border-radius:16px;padding:14px;text-align:center;font-size:13.5px;font-weight:700;color:{{ tDeep }}">Σάρωσε τη θέση για έναρξη μέτρησης</div>
     </sc-if>
     <sc-if value="{{ cntPhaseQty }}" hint-placeholder-val="{{ false }}">
-      <div style="background:{{ tCard }};border-radius:16px;padding:12px 15px;box-shadow:0 2px 8px rgba(23,25,30,.05)"><div style="display:flex;justify-content:space-between"><span style="font:700 12px 'IBM Plex Mono',monospace;color:#ed872d">{{ cntSku }}</span><span style="font:600 12px 'IBM Plex Mono',monospace;color:#9aa0ab">{{ cntLoc }}</span></div><div style="font-size:13.5px;font-weight:600;color:{{ tText }};margin-top:3px">{{ cntName }}</div></div>
+      <div style="background:{{ tCard }};border-radius:16px;padding:12px 15px;box-shadow:0 2px 8px rgba(23,25,30,.05)"><div style="display:flex;justify-content:space-between"><span style="font:700 12px 'IBM Plex Mono',monospace;color:#ed872d">{{ cntSku }}</span><span style="font:600 12px 'IBM Plex Mono',monospace;color:#9aa0ab">{{ cntLoc }}</span></div><div style="font-size:13.5px;font-weight:600;color:{{ tText }};margin-top:3px">{{ cntName }}</div><div style="font-size:11px;font-weight:700;color:{{ tSub }};margin-top:2px">Κατασκευαστής: {{ cntMfr }}</div></div>
       <div style="background:{{ tCard }};border-radius:16px;padding:12px;text-align:center;box-shadow:0 2px 8px rgba(23,25,30,.05)"><div style="font-size:10.5px;font-weight:800;letter-spacing:1.5px;color:#9aa0ab">ΜΕΤΡΗΜΕΝΗ ΠΟΣΟΤΗΤΑ</div><div style="font:800 40px 'IBM Plex Mono',monospace;color:{{ tText }};margin-top:2px">{{ cntQtyText }}</div><div style="font-size:11px;font-weight:600;color:#9aa0ab">Κάθε scan τεμαχίου +1 · ή πληκτρολόγησε · OK για καταχώρηση</div></div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:auto">
         <sc-for list="{{ keys }}" as="k" hint-placeholder-count="12"><button onClick="{{ k.cnt }}" style="height:52px;border:none;border-radius:26px;background:{{ tCard }};font:700 20px Commissioner,sans-serif;color:{{ tText }};box-shadow:0 2px 8px rgba(23,25,30,.05)">{{ k.label }}</button></sc-for>
@@ -278,7 +278,7 @@
         <div style="background:{{ tCard }};border-radius:20px;padding:24px 20px;text-align:center;box-shadow:0 2px 8px rgba(23,25,30,.05)"><div style="font-size:11px;font-weight:800;letter-spacing:2px;color:#9aa0ab">ΣΑΡΩΣΕ ΤΟ ΠΡΟΪΟΝ</div><div style="font-size:13px;font-weight:600;color:#9aa0ab;margin-top:8px;line-height:1.5">Σάρωσε το είδος που θα μετακινήσεις.<br>Κάθε επιπλέον scan αυξάνει την ποσότητα.</div></div>
       </sc-if>
       <sc-if value="{{ movHasSku }}" hint-placeholder-val="{{ false }}">
-        <div style="background:{{ tCard }};border-radius:18px;padding:14px 16px;box-shadow:0 2px 8px rgba(23,25,30,.05)"><div style="display:flex;justify-content:space-between"><span style="font:700 13px 'IBM Plex Mono',monospace;color:#ed872d">{{ movSku }}</span></div><div style="font-size:14px;font-weight:700;color:{{ tText }};margin-top:3px;line-height:1.35">{{ movName }}</div></div>
+        <div style="background:{{ tCard }};border-radius:18px;padding:14px 16px;box-shadow:0 2px 8px rgba(23,25,30,.05)"><div style="display:flex;justify-content:space-between"><span style="font:700 13px 'IBM Plex Mono',monospace;color:#ed872d">{{ movSku }}</span></div><div style="font-size:14px;font-weight:700;color:{{ tText }};margin-top:3px;line-height:1.35">{{ movName }}</div><div style="font-size:11px;font-weight:700;color:{{ tSub }};margin-top:2px">Κατασκευαστής: {{ movMfr }}</div></div>
         <div style="background:{{ tCard }};border-radius:18px;padding:14px 16px;box-shadow:0 2px 8px rgba(23,25,30,.05);display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:11px;font-weight:800;letter-spacing:1.5px;color:#9aa0ab">ΠΟΣΟΤΗΤΑ</div><div style="font-size:11px;font-weight:600;color:#9aa0ab;margin-top:2px">scan +1 ή χειροκίνητα</div></div><div style="display:flex;align-items:center;gap:12px"><button onClick="{{ movMinus }}" style="width:44px;height:44px;border:none;border-radius:50%;background:{{ tChip }};font:700 20px Commissioner,sans-serif;color:{{ tText }}">−</button><span style="font:800 28px 'IBM Plex Mono',monospace;color:{{ tText }};min-width:44px;text-align:center">{{ movQty }}</span><button onClick="{{ movPlus }}" style="width:44px;height:44px;border:none;border-radius:50%;background:{{ tChip }};font:700 20px Commissioner,sans-serif;color:{{ tText }}">+</button></div></div>
         <button onClick="{{ movContinue }}" style="height:52px;border:none;border-radius:26px;background:#ed872d;color:#fff;font:800 14.5px Commissioner,sans-serif;box-shadow:0 4px 12px rgba(237,135,45,.35)">Συνέχεια — θέση προέλευσης ›</button>
       </sc-if>
@@ -303,7 +303,7 @@
       <sc-for list="{{ lblChips }}" as="c" hint-placeholder-count="4"><button onClick="{{ c.pick }}" style="height:34px;padding:0 12px;border:1.5px solid {{ tBorder }};border-radius:17px;background:{{ tCard }};font:600 11.5px 'IBM Plex Mono',monospace;color:{{ tText }}">{{ c.sku }}</button></sc-for>
     </div>
     <div style="background:#fff;border:1px solid #e2e5ea;border-radius:12px;padding:18px 14px;display:flex;flex-direction:column;align-items:center;gap:10px;box-shadow:0 2px 8px rgba(23,25,30,.05)">
-      <div style="font-size:12.5px;font-weight:700;color:{{ tText }};text-align:center;line-height:1.3">{{ lblName }}</div>
+      <div style="font-size:12.5px;font-weight:700;color:#17191e;text-align:center;line-height:1.3">{{ lblName }}</div><div style="font-size:10.5px;font-weight:700;color:#6b7280">{{ lblMfr }}</div>
       <div style="display:flex;height:64px;background:#fff;padding:0 12px">
         <sc-for list="{{ lblBars }}" as="b" hint-placeholder-count="30"><span style="flex:none;width:{{ b.w }}px;background:{{ b.bg }}"></span></sc-for>
       </div>
@@ -504,6 +504,8 @@ class Component extends DCLogic {
     'SAMR165': { name: 'Οθόνη LCD Samsung Galaxy A21s', rows: [['IS-A04-D02-R02-P07', '10 τεμ'], ['IS-A05-D02-R02-P11', '10 τεμ']] },
     'IS-A02-D03-R01-P12': { name: 'Θέση IS-A02-D03-R01-P12 · Ισόγειο · Διάδρομος 02', rows: [['SAMR173', '14 τεμ'], ['SAMR165', '3 τεμ']] }
   };
+  MFR = { 'SAMR173': 'Samsung', 'MIR130': 'Xiaomi', 'SAMR165': 'Samsung', 'MIR109': 'Xiaomi', 'LAPBAT033': 'Apple', 'G038': 'QIANLI', 'TOOL024': 'KAISI' };
+  skuMfr(c) { return this.MFR[c] || '—'; }
   isLoc(c) { return /^[A-Z]{2}-[A-Z]\d{2}-D\d{2}-R\d{2}-P\d{2}$/.test(c); }
   locZone(c) {
     const m = String(c).split('-');
@@ -770,7 +772,7 @@ class Component extends DCLogic {
       return {
         [key + 'PhaseItem']: f.phase === 'item', [key + 'PhaseLocs']: f.phase !== 'item',
         [key + 'NoSku']: !f.sku, [key + 'HasSku']: !!f.sku,
-        [key + 'Sku']: f.sku || '', [key + 'Name']: f.sku ? this.skuName(f.sku) : '', [key + 'Qty']: f.qty,
+        [key + 'Sku']: f.sku || '', [key + 'Name']: f.sku ? this.skuName(f.sku) : '', [key + 'Mfr']: f.sku ? this.skuMfr(f.sku) : '', [key + 'Qty']: f.qty,
         [key + 'From']: f.from || '—', [key + 'To']: '—',
         [key + 'FromColor']: f.phase === 'from' ? on : (f.from ? ok : dim),
         [key + 'ToColor']: f.phase === 'to' ? on : dim,
@@ -833,7 +835,7 @@ class Component extends DCLogic {
       scanExpected: () => { const e = this.demo(); if (e) this.onScan(e.code); },
       scanAlt: () => { const e = this.demo(); if (e && e.alt) this.onScan(e.alt); },
       scanWrong: () => this.onScan('XXX-0000'),
-      pickLoc: PL.loc, pickZone: this.locZone(PL.loc), pickSku: PL.sku, pickName: PL.name, pickLot: PL.lot,
+      pickLoc: PL.loc, pickZone: this.locZone(PL.loc), pickSku: PL.sku, pickName: PL.name, pickLot: PL.lot, pickMfr: this.skuMfr(PL.sku),
       pickQty: PL.qty, pickGot: gotArr[curI],
       pickIdx: doneLines + '/' + this.PICK.length,
       pickPct: Math.round(100 * s.pick.units / totalUnits) + '%',
@@ -885,7 +887,7 @@ class Component extends DCLogic {
       fillToColor: s.fill.phase === 'to' ? on : dim,
       fillHint: s.fill.phase === 'from' ? 'Σάρωσε τη θέση από όπου παίρνεις απόθεμα (π.χ. IS-A05-D01-R01-P02)' : 'Σάρωσε τη θέση ' + PL.loc + ' όπου το τοποθετείς',
       rcvRows: this.RCV.map((l, i) => ({
-        sku: l.sku, name: l.name, prog: s.rcvGot[i] + '/' + l.exp,
+        sku: l.sku, name: l.name, mfr: this.skuMfr(l.sku), prog: s.rcvGot[i] + '/' + l.exp,
         color: s.rcvGot[i] >= l.exp ? ok : (s.rcvGot[i] > 0 ? on : dim),
         pct: Math.round(100 * s.rcvGot[i] / l.exp) + '%'
       })),
@@ -894,10 +896,10 @@ class Component extends DCLogic {
       rcvHint: rcvDone ? 'Όλες οι γραμμές ελέγχθηκαν' : 'Σάρωσε: ' + (rcvNext ? rcvNext.sku : ''),
       closeRcv: () => { this.fb(true); this.finishFlow('doneRcv', 'Η παραλαβή ASN-3021 κλείδωσε'); },
       putPhaseItem: s.put.phase === 'item', putPhaseLoc: s.put.phase === 'loc',
-      putSku: PT.sku, putName: PT.name, putLoc: PT.loc, putZone: this.locZone(PT.loc),
+      putSku: PT.sku, putName: PT.name, putLoc: PT.loc, putZone: this.locZone(PT.loc), putMfr: this.skuMfr(PT.sku),
       putIdx: Math.min(s.put.i + 1, this.PUT.length) + '/' + this.PUT.length,
       packRows: this.PACK.map((l, i) => ({
-        sku: l.sku, name: l.name, prog: s.packGot[i] + '/' + l.qty,
+        sku: l.sku, name: l.name, mfr: this.skuMfr(l.sku), prog: s.packGot[i] + '/' + l.qty,
         color: s.packGot[i] >= l.qty ? ok : (s.packGot[i] > 0 ? on : dim)
       })),
       packProg: s.packGot.reduce((a, b) => a + b, 0) + '/' + this.PACK.reduce((a, l) => a + l.qty, 0),
@@ -906,7 +908,7 @@ class Component extends DCLogic {
       closePack: () => { this.fb(true); this.finishFlow('donePack', 'Ετικέτα BOX-01 εκτυπώθηκε'); },
       ...flowVals('repl'), ...flowVals('mov'),
       cntPhaseLoc: s.cnt.phase === 'loc', cntPhaseQty: s.cnt.phase === 'qty', cntResult: s.cnt.phase === 'result',
-      cntLoc: CT.loc, cntSku: CT.sku, cntName: CT.name, cntZone: this.locZone(CT.loc),
+      cntLoc: CT.loc, cntSku: CT.sku, cntName: CT.name, cntZone: this.locZone(CT.loc), cntMfr: this.skuMfr(CT.sku),
       cntQtyText: s.cnt.qty || '0',
       cntIdx: Math.min(s.cnt.i + 1, this.CNT.length) + '/' + this.CNT.length,
       cntDiffText: 'Μετρήθηκαν ' + (s.cnt.counted || 0) + ' τεμ — το σύστημα αναμένει ' + CT.exp + ' τεμ στη θέση ' + CT.loc,
@@ -928,6 +930,8 @@ class Component extends DCLogic {
       doSearchBtn: () => this.doSearch(this.state.searchQ),
       hasResult: !!s.searchRes,
       resTitle: s.searchRes ? s.searchRes.title : '', resSub: s.searchRes ? s.searchRes.sub : '',
+      resMfr: s.searchRes && this.MFR[s.searchRes.title] ? 'Κατασκευαστής: ' + this.MFR[s.searchRes.title] : '',
+      lblMfr: this.MFR[s.lbl.sku] || '',
       resRows: s.searchRes ? s.searchRes.rows : []
     };
   }
