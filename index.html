@@ -12,9 +12,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@400;500;600;700;800&amp;family=IBM+Plex+Mono:wght@500;600;700&amp;display=swap" rel="stylesheet">
 <style>body{margin:0;background:#eceae5;font-family:Commissioner,system-ui,sans-serif}a{color:#c96f1e}a:hover{color:#ed872d}button{cursor:pointer;font-family:Commissioner,sans-serif}@keyframes omtoast{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}@keyframes omflash{from{opacity:1}to{opacity:0}}</style>
 </helmet>
-<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;gap:30px;flex-wrap:wrap;padding:28px">
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;gap:30px;flex-wrap:wrap;padding:{{ deskPad }}">
 
-<div style="width:360px;height:720px;background:#f7f5f2;border:6px solid #24262b;border-radius:28px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 16px 40px rgba(0,0,0,.2);position:relative" data-screen-label="GeekOn WMS">
+<div style="width:{{ devW }};max-width:100%;height:{{ devH }};background:#f7f5f2;border:{{ devBorder }};border-radius:{{ devRadius }};overflow:hidden;display:flex;flex-direction:column;box-shadow:0 16px 40px rgba(0,0,0,.2);position:relative" data-screen-label="GeekOn WMS">
 
 <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
 <div style="flex:1;display:flex;flex-direction:column;background:#17191e;overflow:hidden" data-screen-label="Login">
@@ -363,6 +363,9 @@ class Component extends DCLogic {
   isLoc(c) { return /^[A-Z]-\d{2}-\d{2}$/.test(c); }
   skuName(c) { return this.DB[c] ? this.DB[c].name : 'Είδος ' + c; }
   componentDidMount() {
+    this.mq = window.matchMedia('(max-width: 560px), (max-height: 800px) and (pointer: coarse)');
+    this.onMq = () => this.forceUpdate();
+    this.mq.addEventListener('change', this.onMq);
     this.buf = '';
     this.kd = (e) => {
       if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
@@ -371,7 +374,7 @@ class Component extends DCLogic {
     };
     window.addEventListener('keydown', this.kd);
   }
-  componentWillUnmount() { window.removeEventListener('keydown', this.kd); this.timers && this.timers.forEach(clearTimeout); }
+  componentWillUnmount() { window.removeEventListener('keydown', this.kd); this.mq && this.mq.removeEventListener('change', this.onMq); this.timers && this.timers.forEach(clearTimeout); }
   later(fn, ms) { (this.timers = this.timers || []).push(setTimeout(fn, ms)); }
   beep(ok) {
     if ((this.props.sound ?? true) === false) return;
@@ -574,6 +577,7 @@ class Component extends DCLogic {
     const rcvNext = this.RCV.find((l, i) => s.rcvGot[i] < l.exp);
     const packNext = this.PACK.find((l, i) => s.packGot[i] < l.qty);
     const d = this.demo();
+    const mob = this.mq ? this.mq.matches : false;
     const active = '#ed872d', idle = '#8b93a1', on = '#ed872d', ok = '#22a55c', dim = '#9aa0ab';
     const flowVals = (key) => {
       const f = s[key];
@@ -608,7 +612,10 @@ class Component extends DCLogic {
       pinDots: [0, 1, 2, 3].map(i => ({ bg: i < s.pin.length ? '#ed872d' : '#eceef2' })),
       keys, modules, totalTasks,
       flashOk: s.flashOk, flashErr: s.flashErr, hasToast: !!s.toast, toastText: s.toast,
-      demoVisible: !!d && (this.props.showDemo ?? true),
+      deskPad: mob ? '0' : '28px',
+      devW: mob ? '100%' : '360px', devH: mob ? '100dvh' : '720px',
+      devBorder: mob ? 'none' : '6px solid #24262b', devRadius: mob ? '0' : '28px',
+      demoVisible: !!d && (this.props.showDemo ?? true) && !mob,
       expectedCode: d ? d.code : '', altVisible: !!(d && d.alt), altCode: d && d.alt ? d.alt : '',
       scanExpected: () => { const e = this.demo(); if (e) this.onScan(e.code); },
       scanAlt: () => { const e = this.demo(); if (e && e.alt) this.onScan(e.alt); },
