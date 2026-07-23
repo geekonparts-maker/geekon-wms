@@ -8,6 +8,7 @@
 <body>
 <x-dc>
 <helmet data-dc-atomics>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@400;500;600;700;800&amp;family=IBM+Plex+Mono:wght@500;600;700&amp;display=swap" rel="stylesheet">
 <style>body{margin:0;background:#eceae5;font-family:Commissioner,system-ui,sans-serif}a{color:#c96f1e}a:hover{color:#ed872d}button{cursor:pointer;font-family:Commissioner,sans-serif}@keyframes omtoast{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}@keyframes omflash{from{opacity:1}to{opacity:0}}</style>
@@ -276,7 +277,7 @@
 </sc-if>
 
 <sc-if value="{{ showNav }}" hint-placeholder-val="{{ false }}">
-<div style="margin:0 16px 16px;background:#17191e;border-radius:22px;display:flex;padding:4px;flex:none">
+<div style="margin:0 16px;margin-bottom:calc(16px + env(safe-area-inset-bottom, 0px));background:#17191e;border-radius:22px;display:flex;padding:4px;flex:none">
   <button onClick="{{ goHome }}" style="flex:1;border:none;background:none;padding:10px 0;font:700 12px Commissioner,sans-serif;color:{{ navHome }}">Αρχική</button>
   <button onClick="{{ goTasks }}" style="flex:1;border:none;background:none;padding:10px 0;font:700 12px Commissioner,sans-serif;color:{{ navTasks }}">Εργασίες</button>
   <button onClick="{{ goSearch }}" style="flex:1;border:none;background:none;padding:10px 0;font:700 12px Commissioner,sans-serif;color:{{ navSearch }}">Αναζήτηση</button>
