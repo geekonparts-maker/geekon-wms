@@ -1,0 +1,143 @@
+openapi: 3.0.3
+info:
+  title: GeekOn WMS Mobile API (προτεινόμενο contract πάνω στο Mantis LVS)
+  version: 0.1.0
+  description: >
+    Αυτό ΔΕΝ είναι το API της Mantis — το LVS δεν εκθέτει δημόσιο REST API.
+    Είναι το contract που χρειάζεται το mobile interface. Υλοποιείται ως custom
+    Web API layer πάνω στο LVS Business Logic layer (Software Development Enabler
+    / .NET exits), από τη Mantis ή τον implementation partner.
+servers:
+  - url: https://wms-api.geekon.gr/v1
+paths:
+  /auth/login:
+    post:
+      summary: Σύνδεση με PIN ή badge scan
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pin: { type: string, example: "1234" }
+                badge: { type: string, example: "BADGE-7734" }
+                device: { type: string, example: "RF-05" }
+      responses:
+        "200":
+          description: JWT + στοιχεία χρήστη (όνομα, ρόλος, βάρδια, ζώνη)
+  /tasks/summary:
+    get:
+      summary: Μετρητές εκκρεμών εργασιών ανά module (dashboard)
+      responses:
+        "200":
+          description: "{ rcv: 1, put: 2, pick: 3, pack: 1, cnt: 2 }"
+  /pick/next:
+    get:
+      summary: Επόμενη γραμμή picking για τον χρήστη (directed work)
+      responses:
+        "200":
+          description: "{ orderId, wave, line: { loc, zone, sku, name, lot, qty, picked }, next: {…}, progress }"
+  /pick/scan:
+    post:
+      summary: Καταχώρηση scan τεμαχίου (auto-advance στο qty)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [orderId, lineId, barcode]
+              properties:
+                orderId: { type: string }
+                lineId: { type: string }
+                barcode: { type: string, example: "SAMR173" }
+      responses:
+        "200": { description: "{ accepted, lineComplete, orderComplete, nextLine }" }
+        "409": { description: Λάθος barcode — επιστρέφει το αναμενόμενο }
+  /receipts/{asnId}:
+    get:
+      summary: Γραμμές ASN με expected/scanned ποσότητες
+      parameters: [{ name: asnId, in: path, required: true, schema: { type: string } }]
+      responses: { "200": { description: Λίστα γραμμών } }
+  /receipts/{asnId}/scan:
+    post:
+      summary: Scan είδους παραλαβής (+1)
+      responses: { "200": { description: Νέο progress γραμμής } }
+  /receipts/{asnId}/close:
+    post:
+      summary: Κλείσιμο παραλαβής
+      responses: { "200": { description: OK } }
+  /putaway/next:
+    get:
+      summary: Επόμενη εργασία τοποθέτησης (sku → προτεινόμενη θέση)
+      responses: { "200": { description: "{ sku, name, qty, suggestedLoc }" } }
+  /putaway/confirm:
+    post:
+      summary: Επιβεβαίωση θέσης — δέχεται και override
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [taskId, scannedLoc]
+              properties:
+                taskId: { type: string }
+                scannedLoc: { type: string, example: "D-05-09" }
+                isOverride: { type: boolean, description: true αν διαφέρει από την πρόταση }
+      responses: { "200": { description: OK — logged με flag override } }
+  /pack/{orderId}/scan:
+    post: { summary: Scan είδους στο κιβώτιο, responses: { "200": { description: progress } } }
+  /pack/{orderId}/close:
+    post: { summary: Κλείσιμο κιβωτίου + εκτύπωση ετικέτας αποστολής, responses: { "200": { description: OK } } }
+  /moves:
+    post:
+      summary: Free-form μετακίνηση / αναπλήρωση
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [sku, qty, fromLoc, toLoc, type]
+              properties:
+                sku: { type: string }
+                qty: { type: integer, description: από scans ή χειροκίνητα }
+                fromLoc: { type: string, example: "R-11-02" }
+                toLoc: { type: string, example: "B-03-12" }
+                type: { type: string, enum: [move, replenishment, pickface-refill] }
+      responses: { "200": { description: OK } }
+  /counts/next:
+    get: { summary: Επόμενη θέση κυκλικής καταμέτρησης, responses: { "200": { description: "{ loc, sku, name } — ΧΩΡΙΣ expected (blind)" } } }
+  /counts/submit:
+    post:
+      summary: Υποβολή μέτρησης
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [countId, qty]
+              properties:
+                countId: { type: string }
+                qty: { type: integer }
+                acceptVariance: { type: boolean, description: true στην «Αποδοχή διαφοράς» }
+      responses:
+        "200": { description: "{ match: true }" }
+        "409": { description: "{ match: false, expected } — ο χρήστης ξαναμετρά ή αποδέχεται" }
+  /stock/{code}:
+    get:
+      summary: Αναζήτηση με SKU ή κωδικό θέσης
+      parameters: [{ name: code, in: path, required: true, schema: { type: string } }]
+      responses: { "200": { description: "{ name, rows: [[loc|sku, qty]] }" }, "404": { description: Δεν βρέθηκε } }
+  /labels/print:
+    post:
+      summary: Εκτύπωση ετικετών Code 128 (ZPL σε δικτυακό printer)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code, copies]
+              properties:
+                code: { type: string, example: "SAMR173" }
+                copies: { type: integer, example: 2 }
+                printer: { type: string, example: "ZEBRA-DOCK-1" }
+      responses: { "200": { description: OK } }
