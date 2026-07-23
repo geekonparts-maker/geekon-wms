@@ -137,7 +137,7 @@
   </sc-if>
   <sc-if value="{{ pickListClosed }}" hint-placeholder-val="{{ true }}">
   <div style="flex:1;padding:14px 18px;display:flex;flex-direction:column;gap:11px;overflow:auto">
-    <div style="background:{{ tCard }};border-radius:18px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(23,25,30,.05)"><div style="font-size:10.5px;font-weight:800;letter-spacing:2px;color:#9aa0ab">ΘΕΣΗ</div><div style="font:700 36px 'IBM Plex Mono',monospace;color:{{ tText }};margin-top:2px">{{ pickLoc }}</div><div style="display:inline-block;margin-top:6px;font-size:11.5px;font-weight:700;color:#ed872d;background:{{ tTint }};border-radius:12px;padding:4px 11px">{{ pickZone }}</div></div>
+    <div style="background:{{ tCard }};border-radius:18px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(23,25,30,.05)"><div style="font-size:10.5px;font-weight:800;letter-spacing:2px;color:#9aa0ab">ΘΕΣΗ</div><div style="font:700 21px 'IBM Plex Mono',monospace;letter-spacing:.5px;color:{{ tText }};margin-top:6px">{{ pickLoc }}</div><div style="display:inline-block;margin-top:6px;font-size:11.5px;font-weight:700;color:#ed872d;background:{{ tTint }};border-radius:12px;padding:4px 11px">{{ pickZone }}</div></div>
     <div style="background:{{ tCard }};border-radius:18px;padding:13px 15px;display:flex;flex-direction:column;gap:5px;box-shadow:0 2px 8px rgba(23,25,30,.05)"><div style="display:flex;justify-content:space-between"><span style="font:700 12px 'IBM Plex Mono',monospace;color:#ed872d">{{ pickSku }}</span><span style="font-size:12px;font-weight:600;color:#9aa0ab">Παρτίδα {{ pickLot }}</span></div><div style="font-size:14.5px;font-weight:700;color:{{ tText }};line-height:1.35">{{ pickName }}</div><div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:4px"><span style="font-size:13px;font-weight:700;color:#9aa0ab">Ποσότητα</span><span style="font:700 32px 'IBM Plex Mono',monospace;color:#ed872d">{{ pickGot }}<span style="font-size:19px;color:#9aa0ab">/{{ pickQty }}</span></span></div></div>
     <div style="border:2px dashed #ed872d;background:{{ tTint }};border-radius:16px;padding:12px;text-align:center"><div style="font-size:13.5px;font-weight:700;color:{{ tDeep }}">{{ pickLeftText }}</div><div style="font-size:11.5px;font-weight:600;color:#9aa0ab;margin-top:2px">Μπορείς να σαρώσεις όποιο είδος της παραγγελίας θες — γεμίζει η δική του ποσότητα</div></div>
     <button onClick="{{ openPickFill }}" style="height:46px;border:1.5px solid {{ tBorder }};border-radius:23px;background:{{ tCard }};font:700 13px Commissioner,sans-serif;color:{{ tText }}">Αναπλήρωση θέσης {{ pickLoc }}</button>
@@ -153,7 +153,7 @@
     <div style="display:flex;justify-content:space-between;align-items:center"><button onClick="{{ backToPick }}" style="width:36px;height:36px;border:none;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;font-size:18px">‹</button><div style="text-align:center"><div style="font-size:15px;font-weight:800;color:#fff">Αναπλήρωση θέσης</div><div style="font:600 11.5px 'IBM Plex Mono',monospace;color:rgba(255,255,255,.8)">{{ fillTarget }}</div></div><span style="width:36px"></span></div>
   </div>
   <div style="flex:1;padding:16px 18px;display:flex;flex-direction:column;gap:12px;overflow:auto">
-    <div style="background:{{ tCard }};border-radius:20px;padding:18px;box-shadow:0 2px 8px rgba(23,25,30,.05);display:flex;align-items:center;justify-content:space-between"><div style="text-align:center;flex:1"><div style="font-size:10.5px;font-weight:800;letter-spacing:1.5px;color:{{ fillFromColor }}">ΑΠΟ</div><div style="font:700 24px 'IBM Plex Mono',monospace;color:{{ fillFromColor }};margin-top:4px">{{ fillFrom }}</div></div><span style="font-size:20px;color:#9aa0ab">→</span><div style="text-align:center;flex:1"><div style="font-size:10.5px;font-weight:800;letter-spacing:1.5px;color:{{ fillToColor }}">ΠΡΟΣ</div><div style="font:700 24px 'IBM Plex Mono',monospace;color:{{ fillToColor }};margin-top:4px">{{ fillTarget }}</div></div></div>
+    <div style="background:{{ tCard }};border-radius:20px;padding:16px 18px;box-shadow:0 2px 8px rgba(23,25,30,.05);display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:center;gap:12px"><span style="width:44px;font-size:10.5px;font-weight:800;letter-spacing:1px;color:{{ fillFromColor }}">ΑΠΟ</span><span style="font:700 15px 'IBM Plex Mono',monospace;color:{{ fillFromColor }}">{{ fillFrom }}</span></div><div style="display:flex;align-items:center;gap:12px"><span style="width:44px;font-size:10.5px;font-weight:800;letter-spacing:1px;color:{{ fillToColor }}">ΠΡΟΣ</span><span style="font:700 15px 'IBM Plex Mono',monospace;color:{{ fillToColor }}">{{ fillTarget }}</span></div></div>
     <div style="border:2px dashed #ed872d;background:{{ tTint }};border-radius:16px;padding:14px;text-align:center;font-size:13.5px;font-weight:700;color:{{ tDeep }}">{{ fillHint }}</div>
     <button onClick="{{ backToPick }}" style="margin-top:auto;height:46px;border:1.5px solid {{ tBorder }};border-radius:23px;background:{{ tCard }};font:700 13px Commissioner,sans-serif;color:#9aa0ab">Ακύρωση — πίσω στο picking</button>
   </div>
@@ -197,7 +197,7 @@
       <div style="border:2px dashed #ed872d;background:{{ tTint }};border-radius:16px;padding:14px;text-align:center;font-size:13.5px;font-weight:700;color:{{ tDeep }}">Σάρωσε το barcode του προϊόντος</div>
     </sc-if>
     <sc-if value="{{ putPhaseLoc }}" hint-placeholder-val="{{ false }}">
-      <div style="background:{{ tCard }};border-radius:20px;padding:20px;text-align:center;box-shadow:0 2px 8px rgba(23,25,30,.05)"><div style="font-size:11px;font-weight:800;letter-spacing:2px;color:#9aa0ab">ΠΡΟΤΕΙΝΟΜΕΝΗ ΘΕΣΗ</div><div style="font:700 44px 'IBM Plex Mono',monospace;color:{{ tText }};margin-top:6px">{{ putLoc }}</div><div style="display:inline-block;margin-top:8px;font-size:12px;font-weight:700;color:#ed872d;background:{{ tTint }};border-radius:12px;padding:5px 12px">Πρόταση συστήματος</div></div>
+      <div style="background:{{ tCard }};border-radius:20px;padding:20px;text-align:center;box-shadow:0 2px 8px rgba(23,25,30,.05)"><div style="font-size:11px;font-weight:800;letter-spacing:2px;color:#9aa0ab">ΠΡΟΤΕΙΝΟΜΕΝΗ ΘΕΣΗ</div><div style="font:700 21px 'IBM Plex Mono',monospace;letter-spacing:.5px;color:{{ tText }};margin-top:8px">{{ putLoc }}</div><div style="font-size:11.5px;font-weight:600;color:#9aa0ab;margin-top:6px">{{ putZone }}</div><div style="display:inline-block;margin-top:8px;font-size:12px;font-weight:700;color:#ed872d;background:{{ tTint }};border-radius:12px;padding:5px 12px">Πρόταση συστήματος</div></div>
       <div style="border:2px dashed #ed872d;background:{{ tTint }};border-radius:16px;padding:12px;text-align:center"><div style="font-size:13.5px;font-weight:700;color:{{ tDeep }}">Σάρωσε την προτεινόμενη θέση</div><div style="font-size:11.5px;font-weight:600;color:#9aa0ab;margin-top:2px">ή σάρωσε όποια άλλη θέση θέλεις — καταχωρείται ως αλλαγή</div></div>
     </sc-if>
   </div>
@@ -235,7 +235,7 @@
     </sc-if>
     <sc-if value="{{ replPhaseLocs }}" hint-placeholder-val="{{ false }}">
       <div style="background:{{ tCard }};border-radius:16px;padding:11px 15px;box-shadow:0 2px 8px rgba(23,25,30,.05);display:flex;justify-content:space-between;align-items:center"><span style="font:700 12px 'IBM Plex Mono',monospace;color:#ed872d">{{ replSku }}</span><span style="font:700 17px 'IBM Plex Mono',monospace;color:{{ tText }}">×{{ replQty }}</span></div>
-      <div style="background:{{ tCard }};border-radius:20px;padding:18px;box-shadow:0 2px 8px rgba(23,25,30,.05);display:flex;align-items:center;justify-content:space-between"><div style="text-align:center;flex:1"><div style="font-size:10.5px;font-weight:800;letter-spacing:1.5px;color:{{ replFromColor }}">ΑΠΟ</div><div style="font:700 22px 'IBM Plex Mono',monospace;color:{{ replFromColor }};margin-top:4px">{{ replFrom }}</div></div><span style="font-size:20px;color:#9aa0ab">→</span><div style="text-align:center;flex:1"><div style="font-size:10.5px;font-weight:800;letter-spacing:1.5px;color:{{ replToColor }}">ΠΡΟΣ</div><div style="font:700 22px 'IBM Plex Mono',monospace;color:{{ replToColor }};margin-top:4px">{{ replTo }}</div></div></div>
+      <div style="background:{{ tCard }};border-radius:20px;padding:16px 18px;box-shadow:0 2px 8px rgba(23,25,30,.05);display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:center;gap:12px"><span style="width:44px;font-size:10.5px;font-weight:800;letter-spacing:1px;color:{{ replFromColor }}">ΑΠΟ</span><span style="font:700 15px 'IBM Plex Mono',monospace;color:{{ replFromColor }}">{{ replFrom }}</span></div><div style="display:flex;align-items:center;gap:12px"><span style="width:44px;font-size:10.5px;font-weight:800;letter-spacing:1px;color:{{ replToColor }}">ΠΡΟΣ</span><span style="font:700 15px 'IBM Plex Mono',monospace;color:{{ replToColor }}">{{ replTo }}</span></div></div>
     </sc-if>
     <div style="border:2px dashed #ed872d;background:{{ tTint }};border-radius:16px;padding:13px;text-align:center;font-size:13px;font-weight:700;color:{{ tDeep }}">{{ replHint }}</div>
   </div>
@@ -249,7 +249,7 @@
   </div>
   <div style="flex:1;padding:14px 18px;display:flex;flex-direction:column;gap:11px;overflow:auto">
     <sc-if value="{{ cntPhaseLoc }}" hint-placeholder-val="{{ false }}">
-      <div style="background:{{ tCard }};border-radius:20px;padding:20px;text-align:center;box-shadow:0 2px 8px rgba(23,25,30,.05)"><div style="font-size:11px;font-weight:800;letter-spacing:2px;color:#9aa0ab">ΠΗΓΑΙΝΕ ΣΤΗ ΘΕΣΗ</div><div style="font:700 44px 'IBM Plex Mono',monospace;color:{{ tText }};margin-top:6px">{{ cntLoc }}</div></div>
+      <div style="background:{{ tCard }};border-radius:20px;padding:20px;text-align:center;box-shadow:0 2px 8px rgba(23,25,30,.05)"><div style="font-size:11px;font-weight:800;letter-spacing:2px;color:#9aa0ab">ΠΗΓΑΙΝΕ ΣΤΗ ΘΕΣΗ</div><div style="font:700 21px 'IBM Plex Mono',monospace;letter-spacing:.5px;color:{{ tText }};margin-top:8px">{{ cntLoc }}</div><div style="font-size:11.5px;font-weight:600;color:#9aa0ab;margin-top:6px">{{ cntZone }}</div></div>
       <div style="border:2px dashed #ed872d;background:{{ tTint }};border-radius:16px;padding:14px;text-align:center;font-size:13.5px;font-weight:700;color:{{ tDeep }}">Σάρωσε τη θέση για έναρξη μέτρησης</div>
     </sc-if>
     <sc-if value="{{ cntPhaseQty }}" hint-placeholder-val="{{ false }}">
@@ -285,7 +285,7 @@
     </sc-if>
     <sc-if value="{{ movPhaseLocs }}" hint-placeholder-val="{{ false }}">
       <div style="background:{{ tCard }};border-radius:16px;padding:11px 15px;box-shadow:0 2px 8px rgba(23,25,30,.05);display:flex;justify-content:space-between;align-items:center"><span style="font:700 12px 'IBM Plex Mono',monospace;color:#ed872d">{{ movSku }}</span><span style="font:700 17px 'IBM Plex Mono',monospace;color:{{ tText }}">×{{ movQty }}</span></div>
-      <div style="background:{{ tCard }};border-radius:20px;padding:18px;box-shadow:0 2px 8px rgba(23,25,30,.05);display:flex;align-items:center;justify-content:space-between"><div style="text-align:center;flex:1"><div style="font-size:10.5px;font-weight:800;letter-spacing:1.5px;color:{{ movFromColor }}">ΑΠΟ</div><div style="font:700 22px 'IBM Plex Mono',monospace;color:{{ movFromColor }};margin-top:4px">{{ movFrom }}</div></div><span style="font-size:20px;color:#9aa0ab">→</span><div style="text-align:center;flex:1"><div style="font-size:10.5px;font-weight:800;letter-spacing:1.5px;color:{{ movToColor }}">ΠΡΟΣ</div><div style="font:700 22px 'IBM Plex Mono',monospace;color:{{ movToColor }};margin-top:4px">{{ movTo }}</div></div></div>
+      <div style="background:{{ tCard }};border-radius:20px;padding:16px 18px;box-shadow:0 2px 8px rgba(23,25,30,.05);display:flex;flex-direction:column;gap:12px"><div style="display:flex;align-items:center;gap:12px"><span style="width:44px;font-size:10.5px;font-weight:800;letter-spacing:1px;color:{{ movFromColor }}">ΑΠΟ</span><span style="font:700 15px 'IBM Plex Mono',monospace;color:{{ movFromColor }}">{{ movFrom }}</span></div><div style="display:flex;align-items:center;gap:12px"><span style="width:44px;font-size:10.5px;font-weight:800;letter-spacing:1px;color:{{ movToColor }}">ΠΡΟΣ</span><span style="font:700 15px 'IBM Plex Mono',monospace;color:{{ movToColor }}">{{ movTo }}</span></div></div>
     </sc-if>
     <div style="border:2px dashed #ed872d;background:{{ tTint }};border-radius:16px;padding:13px;text-align:center;font-size:13px;font-weight:700;color:{{ tDeep }}">{{ movHint }}</div>
   </div>
@@ -461,19 +461,19 @@ class Component extends DCLogic {
   ORDERS = [
     {
       id: 'SO-10482', wave: 'Wave 12', customer: 'Κινητοτεχνική ΑΕ', lines: [
-        { loc: 'B-03-12', zone: 'Διάδρομος B · Ράφι 3', sku: 'SAMR173', name: 'Γνήσια Οθόνη LCD Samsung Galaxy A51', lot: 'L-2265', qty: 2 },
-        { loc: 'B-03-15', zone: 'Διάδρομος B · Ράφι 3', sku: 'MIR130', name: 'Οθόνη LCD Xiaomi Redmi 13C / Poco C65', lot: 'L-2270', qty: 1 },
-        { loc: 'C-01-04', zone: 'Διάδρομος C · Ράφι 1', sku: 'LAPBAT033', name: 'Μπαταρία A2171 MacBook Pro 13"', lot: '—', qty: 3 }]
+        { loc: 'IS-A02-D03-R01-P12', zone: 'Διάδρομος B · Ράφι 3', sku: 'SAMR173', name: 'Γνήσια Οθόνη LCD Samsung Galaxy A51', lot: 'L-2265', qty: 2 },
+        { loc: 'IS-A02-D03-R01-P15', zone: 'Διάδρομος B · Ράφι 3', sku: 'MIR130', name: 'Οθόνη LCD Xiaomi Redmi 13C / Poco C65', lot: 'L-2270', qty: 1 },
+        { loc: 'IS-A03-D01-R02-P04', zone: 'Διάδρομος C · Ράφι 1', sku: 'LAPBAT033', name: 'Μπαταρία A2171 MacBook Pro 13"', lot: '—', qty: 3 }]
     },
     {
       id: 'SO-10483', wave: 'Wave 12', customer: 'Mobile Center Πάτρα', lines: [
-        { loc: 'B-04-02', zone: 'Διάδρομος B · Ράφι 4', sku: 'MIR130', name: 'Οθόνη LCD Xiaomi Redmi 13C / Poco C65', lot: 'L-2270', qty: 2 },
-        { loc: 'C-02-08', zone: 'Διάδρομος C · Ράφι 2', sku: 'G038', name: 'QIANLI B640 Τροφοδοτικό 40W', lot: '—', qty: 1 }]
+        { loc: 'IS-A02-D04-R03-P02', zone: 'Διάδρομος B · Ράφι 4', sku: 'MIR130', name: 'Οθόνη LCD Xiaomi Redmi 13C / Poco C65', lot: 'L-2270', qty: 2 },
+        { loc: 'IS-A03-D02-R01-P08', zone: 'Διάδρομος C · Ράφι 2', sku: 'G038', name: 'QIANLI B640 Τροφοδοτικό 40W', lot: '—', qty: 1 }]
     },
     {
       id: 'SO-10484', wave: 'Wave 13', customer: 'TechFix Ηράκλειο', lines: [
-        { loc: 'A-01-03', zone: 'Διάδρομος A · Ράφι 1', sku: 'SAMR165', name: 'Οθόνη LCD Samsung Galaxy A21s', lot: 'L-2251', qty: 4 },
-        { loc: 'C-01-04', zone: 'Διάδρομος C · Ράφι 1', sku: 'LAPBAT033', name: 'Μπαταρία A2171 MacBook Pro 13"', lot: '—', qty: 1 }]
+        { loc: 'IS-A01-D01-R04-P03', zone: 'Διάδρομος A · Ράφι 1', sku: 'SAMR165', name: 'Οθόνη LCD Samsung Galaxy A21s', lot: 'L-2251', qty: 4 },
+        { loc: 'IS-A03-D01-R02-P04', zone: 'Διάδρομος C · Ράφι 1', sku: 'LAPBAT033', name: 'Μπαταρία A2171 MacBook Pro 13"', lot: '—', qty: 1 }]
     }
   ];
   get PICK() { return this.ORDERS[this.state.po ?? 0].lines; }
@@ -487,24 +487,30 @@ class Component extends DCLogic {
     { sku: 'TOOL024', name: 'KAISI K-9208 Charging Jig', exp: 4 }
   ];
   PUT = [
-    { sku: 'SAMR165', name: 'Οθόνη LCD Samsung Galaxy A21s ×10', loc: 'D-02-07' },
-    { sku: 'MIR109', name: 'Οθόνη LCD Xiaomi Redmi Note 11 ×6', loc: 'D-03-01' }
+    { sku: 'SAMR165', name: 'Οθόνη LCD Samsung Galaxy A21s ×10', loc: 'IS-A04-D02-R02-P07' },
+    { sku: 'MIR109', name: 'Οθόνη LCD Xiaomi Redmi Note 11 ×6', loc: 'IS-A04-D03-R01-P01' }
   ];
   PACK = [
     { sku: 'SAMR173', name: 'Γνήσια Οθόνη Samsung Galaxy A51', qty: 1 },
     { sku: 'G038', name: 'QIANLI B640 Τροφοδοτικό 40W', qty: 2 }
   ];
   CNT = [
-    { loc: 'B-03-12', sku: 'SAMR173', name: 'Οθόνη Samsung A51', exp: 14 },
-    { loc: 'B-04-02', sku: 'MIR130', name: 'Οθόνη Xiaomi 13C', exp: 8 }
+    { loc: 'IS-A02-D03-R01-P12', sku: 'SAMR173', name: 'Οθόνη Samsung A51', exp: 14 },
+    { loc: 'IS-A02-D04-R03-P02', sku: 'MIR130', name: 'Οθόνη Xiaomi 13C', exp: 8 }
   ];
   DB = {
-    'SAMR173': { name: 'Γνήσια Οθόνη LCD Samsung Galaxy A51', rows: [['B-03-12', '14 τεμ'], ['R-11-02', '36 τεμ']] },
-    'MIR130': { name: 'Οθόνη LCD Xiaomi Redmi 13C / Poco C65', rows: [['B-04-02', '8 τεμ'], ['R-12-05', '22 τεμ']] },
-    'SAMR165': { name: 'Οθόνη LCD Samsung Galaxy A21s', rows: [['D-02-07', '10 τεμ'], ['E-02-11', '10 τεμ']] },
-    'B-03-12': { name: 'Θέση B-03-12 · Διάδρομος B · Ράφι 3', rows: [['SAMR173', '14 τεμ'], ['SAMR165', '3 τεμ']] }
+    'SAMR173': { name: 'Γνήσια Οθόνη LCD Samsung Galaxy A51', rows: [['IS-A02-D03-R01-P12', '14 τεμ'], ['IS-A05-D01-R01-P02', '36 τεμ']] },
+    'MIR130': { name: 'Οθόνη LCD Xiaomi Redmi 13C / Poco C65', rows: [['IS-A02-D04-R03-P02', '8 τεμ'], ['IS-A05-D02-R01-P05', '22 τεμ']] },
+    'SAMR165': { name: 'Οθόνη LCD Samsung Galaxy A21s', rows: [['IS-A04-D02-R02-P07', '10 τεμ'], ['IS-A05-D02-R02-P11', '10 τεμ']] },
+    'IS-A02-D03-R01-P12': { name: 'Θέση IS-A02-D03-R01-P12 · Ισόγειο · Διάδρομος 02', rows: [['SAMR173', '14 τεμ'], ['SAMR165', '3 τεμ']] }
   };
-  isLoc(c) { return /^[A-Z]-\d{2}-\d{2}$/.test(c); }
+  isLoc(c) { return /^[A-Z]{2}-[A-Z]\d{2}-D\d{2}-R\d{2}-P\d{2}$/.test(c); }
+  locZone(c) {
+    const m = String(c).split('-');
+    if (m.length < 5) return c;
+    const fl = m[0] === 'IS' ? 'Ισόγειο' : (m[0] === 'OR' ? 'Όροφος' : m[0]);
+    return fl + ' · Διάδρομος ' + m[1].slice(1) + ' · Dexion ' + m[2].slice(1) + ' · Ράφι ' + m[3].slice(1) + ' · Θέση ' + m[4].slice(1);
+  }
   skuName(c) { return this.DB[c] ? this.DB[c].name : 'Είδος ' + c; }
   componentDidMount() {
     try { const q = JSON.parse(localStorage.getItem('geekon_wms_queue') || '[]'); if (q.length) this.setState({ queue: q }); } catch (e) { }
@@ -552,12 +558,12 @@ class Component extends DCLogic {
       case 'search': return { code: 'SAMR173' };
       case 'label': return { code: 'MIR130' };
       case 'pick': return { code: (this.PICK[this.pickCur()] || {}).sku };
-      case 'fill': return s.fill.phase === 'from' ? { code: 'R-11-02' } : { code: this.PICK[this.pickCur()].loc };
+      case 'fill': return s.fill.phase === 'from' ? { code: 'IS-A05-D01-R01-P02' } : { code: this.PICK[this.pickCur()].loc };
       case 'rcv': { const l = this.RCV.find((x, i) => s.rcvGot[i] < x.exp); return l ? { code: l.sku } : null; }
-      case 'put': { const T = this.PUT[s.put.i]; if (!T) return null; return s.put.phase === 'item' ? { code: T.sku } : { code: T.loc, alt: 'D-05-09' }; }
+      case 'put': { const T = this.PUT[s.put.i]; if (!T) return null; return s.put.phase === 'item' ? { code: T.sku } : { code: T.loc, alt: 'IS-A04-D05-R01-P09' }; }
       case 'pack': { const l = this.PACK.find((x, i) => s.packGot[i] < x.qty); return l ? { code: l.sku } : null; }
-      case 'repl': return s.repl.phase === 'item' ? { code: s.repl.sku || 'SAMR173' } : (s.repl.phase === 'from' ? { code: 'R-11-02' } : { code: 'B-03-12' });
-      case 'mov': return s.mov.phase === 'item' ? { code: s.mov.sku || 'SAMR165' } : (s.mov.phase === 'from' ? { code: 'E-02-11' } : { code: 'E-01-04' });
+      case 'repl': return s.repl.phase === 'item' ? { code: s.repl.sku || 'SAMR173' } : (s.repl.phase === 'from' ? { code: 'IS-A05-D01-R01-P02' } : { code: 'IS-A02-D03-R01-P12' });
+      case 'mov': return s.mov.phase === 'item' ? { code: s.mov.sku || 'SAMR165' } : (s.mov.phase === 'from' ? { code: 'IS-A05-D02-R02-P11' } : { code: 'IS-A05-D01-R03-P04' });
       case 'cnt': { const T = this.CNT[s.cnt.i]; if (!T) return null; return s.cnt.phase === 'loc' ? { code: T.loc } : (s.cnt.phase === 'qty' ? { code: T.sku } : null); }
     }
     return null;
@@ -580,7 +586,7 @@ class Component extends DCLogic {
         const target = this.PICK[this.pickCur()].loc;
         if (s.fill.phase === 'from') {
           if (this.isLoc(code)) { this.fb(true); this.setState({ fill: { phase: 'to', from: code } }); }
-          else this.err('Σάρωσε θέση προέλευσης (π.χ. R-11-02)');
+          else this.err('Σάρωσε θέση προέλευσης (π.χ. IS-A05-D01-R01-P02)');
         } else {
           if (code === target) { this.fb(true); this.enqueue('RPL ' + s.fill.from + '→' + target); this.showToast('Η θέση ' + target + ' αναπληρώθηκε από ' + s.fill.from); this.setState({ screen: 'pick', fill: { phase: 'from', from: null } }); }
           else this.err('Σάρωσε τη θέση picking ' + target);
@@ -827,7 +833,7 @@ class Component extends DCLogic {
       scanExpected: () => { const e = this.demo(); if (e) this.onScan(e.code); },
       scanAlt: () => { const e = this.demo(); if (e && e.alt) this.onScan(e.alt); },
       scanWrong: () => this.onScan('XXX-0000'),
-      pickLoc: PL.loc, pickZone: PL.zone, pickSku: PL.sku, pickName: PL.name, pickLot: PL.lot,
+      pickLoc: PL.loc, pickZone: this.locZone(PL.loc), pickSku: PL.sku, pickName: PL.name, pickLot: PL.lot,
       pickQty: PL.qty, pickGot: gotArr[curI],
       pickIdx: doneLines + '/' + this.PICK.length,
       pickPct: Math.round(100 * s.pick.units / totalUnits) + '%',
@@ -877,7 +883,7 @@ class Component extends DCLogic {
       fillTarget: PL.loc, fillFrom: s.fill.from || '—',
       fillFromColor: s.fill.phase === 'from' ? on : ok,
       fillToColor: s.fill.phase === 'to' ? on : dim,
-      fillHint: s.fill.phase === 'from' ? 'Σάρωσε τη θέση από όπου παίρνεις απόθεμα (π.χ. R-11-02)' : 'Σάρωσε τη θέση ' + PL.loc + ' όπου το τοποθετείς',
+      fillHint: s.fill.phase === 'from' ? 'Σάρωσε τη θέση από όπου παίρνεις απόθεμα (π.χ. IS-A05-D01-R01-P02)' : 'Σάρωσε τη θέση ' + PL.loc + ' όπου το τοποθετείς',
       rcvRows: this.RCV.map((l, i) => ({
         sku: l.sku, name: l.name, prog: s.rcvGot[i] + '/' + l.exp,
         color: s.rcvGot[i] >= l.exp ? ok : (s.rcvGot[i] > 0 ? on : dim),
@@ -888,7 +894,7 @@ class Component extends DCLogic {
       rcvHint: rcvDone ? 'Όλες οι γραμμές ελέγχθηκαν' : 'Σάρωσε: ' + (rcvNext ? rcvNext.sku : ''),
       closeRcv: () => { this.fb(true); this.finishFlow('doneRcv', 'Η παραλαβή ASN-3021 κλείδωσε'); },
       putPhaseItem: s.put.phase === 'item', putPhaseLoc: s.put.phase === 'loc',
-      putSku: PT.sku, putName: PT.name, putLoc: PT.loc,
+      putSku: PT.sku, putName: PT.name, putLoc: PT.loc, putZone: this.locZone(PT.loc),
       putIdx: Math.min(s.put.i + 1, this.PUT.length) + '/' + this.PUT.length,
       packRows: this.PACK.map((l, i) => ({
         sku: l.sku, name: l.name, prog: s.packGot[i] + '/' + l.qty,
@@ -900,7 +906,7 @@ class Component extends DCLogic {
       closePack: () => { this.fb(true); this.finishFlow('donePack', 'Ετικέτα BOX-01 εκτυπώθηκε'); },
       ...flowVals('repl'), ...flowVals('mov'),
       cntPhaseLoc: s.cnt.phase === 'loc', cntPhaseQty: s.cnt.phase === 'qty', cntResult: s.cnt.phase === 'result',
-      cntLoc: CT.loc, cntSku: CT.sku, cntName: CT.name,
+      cntLoc: CT.loc, cntSku: CT.sku, cntName: CT.name, cntZone: this.locZone(CT.loc),
       cntQtyText: s.cnt.qty || '0',
       cntIdx: Math.min(s.cnt.i + 1, this.CNT.length) + '/' + this.CNT.length,
       cntDiffText: 'Μετρήθηκαν ' + (s.cnt.counted || 0) + ' τεμ — το σύστημα αναμένει ' + CT.exp + ' τεμ στη θέση ' + CT.loc,
@@ -911,7 +917,7 @@ class Component extends DCLogic {
       onLblInput: (e) => this.setState({ lbl: { ...s.lbl, q: e.target.value } }),
       onLblKey: (e) => { if (e.key === 'Enter') this.setLblSku(e.target.value); },
       lblGo: () => this.setLblSku(this.state.lbl.q),
-      lblChips: ['SAMR173', 'MIR130', 'SAMR165', 'B-03-12'].map(sku => ({ sku, pick: () => this.setLblSku(sku) })),
+      lblChips: ['SAMR173', 'MIR130', 'SAMR165', 'IS-A02-D03-R01-P12'].map(sku => ({ sku, pick: () => this.setLblSku(sku) })),
       lblMinus: () => { if (s.lbl.copies > 1) this.setState({ lbl: { ...s.lbl, copies: s.lbl.copies - 1 } }); },
       lblPlus: () => this.setState({ lbl: { ...s.lbl, copies: s.lbl.copies + 1 } }),
       lblPrint: () => { this.fb(true); this.showToast('Στάλθηκαν ' + s.lbl.copies + ' ετικέτες ' + s.lbl.sku + ' στον εκτυπωτή (ZPL)', 2200); },
