@@ -87,9 +87,9 @@
   </div>
   <div style="flex:1;overflow:auto;padding:16px 18px;display:flex;flex-direction:column;gap:12px">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px">
-      <div style="background:{{ tCard }};border-radius:16px;padding:14px;box-shadow:0 2px 8px rgba(23,25,30,.05)"><div style="font-size:11.5px;font-weight:600;color:#9aa0ab">Picks σήμερα</div><div style="font:800 24px Commissioner,sans-serif;color:{{ tText }};margin-top:3px">126</div></div>
+      <div style="background:{{ tCard }};border-radius:16px;padding:14px;box-shadow:0 2px 8px rgba(23,25,30,.05)"><div style="font-size:11.5px;font-weight:600;color:#9aa0ab">Τεμάχια picking</div><div style="font:800 24px Commissioner,sans-serif;color:{{ tText }};margin-top:3px">{{ statUnits }}</div></div>
       <div style="background:{{ tCard }};border-radius:16px;padding:14px;box-shadow:0 2px 8px rgba(23,25,30,.05)"><div style="font-size:11.5px;font-weight:600;color:#9aa0ab">Ακρίβεια</div><div style="font:800 24px Commissioner,sans-serif;color:#22a55c;margin-top:3px">99.2%</div></div>
-      <div style="background:{{ tCard }};border-radius:16px;padding:14px;box-shadow:0 2px 8px rgba(23,25,30,.05)"><div style="font-size:11.5px;font-weight:600;color:#9aa0ab">Γραμμές / ώρα</div><div style="font:800 24px Commissioner,sans-serif;color:{{ tText }};margin-top:3px">38</div></div>
+      <div style="background:{{ tCard }};border-radius:16px;padding:14px;box-shadow:0 2px 8px rgba(23,25,30,.05)"><div style="font-size:11.5px;font-weight:600;color:#9aa0ab">Παραγγελίες</div><div style="font:800 24px Commissioner,sans-serif;color:{{ tText }};margin-top:3px">{{ statOrders }}</div></div>
       <div style="background:{{ tCard }};border-radius:16px;padding:14px;box-shadow:0 2px 8px rgba(23,25,30,.05)"><div style="font-size:11.5px;font-weight:600;color:#9aa0ab">Μ.Ο. / γραμμή</div><div style="font:800 24px Commissioner,sans-serif;color:{{ tText }};margin-top:3px">41s</div></div>
     </div>
     <button onClick="{{ goHist }}" style="background:{{ tCard }};border:none;border-radius:16px;padding:14px 15px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(23,25,30,.05);text-align:left"><span style="font-size:14px;font-weight:700;color:{{ tText }}">Οι κινήσεις μου</span><span style="display:flex;align-items:center;gap:8px"><span style="font:700 13px 'IBM Plex Mono',monospace;color:#ed872d">{{ histCount }}</span><span style="color:#9aa0ab;font-size:16px">›</span></span></button>
@@ -99,19 +99,51 @@
 </div>
 </sc-if>
 
+<sc-if value="{{ isPlist }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;overflow:hidden" data-screen-label="Παραγγελίες Picking">
+  <div style="background:#ed872d;padding:12px 20px 18px;border-radius:0 0 26px 26px;flex:none">
+    <div style="display:flex;justify-content:space-between;align-items:center"><button onClick="{{ goHome }}" style="width:36px;height:36px;border:none;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;font-size:18px">‹</button><div style="text-align:center"><div style="font-size:15px;font-weight:800;color:#fff">Picking</div><div style="font-size:11.5px;font-weight:600;color:rgba(255,255,255,.8)">Επίλεξε παραγγελία</div></div><span style="font:700 12px 'IBM Plex Mono',monospace;background:rgba(255,255,255,.2);color:#fff;padding:4px 9px;border-radius:10px">{{ plistProg }}</span></div>
+  </div>
+  <div style="flex:1;padding:14px 18px;display:flex;flex-direction:column;gap:9px;overflow:auto">
+    <div style="font-size:11px;font-weight:800;letter-spacing:1.5px;color:#9aa0ab">ΣΕΙΡΑ ΑΠΟ ΔΙΑΧΕΙΡΙΣΤΙΚΟ</div>
+    <sc-for list="{{ plistRows }}" as="r" hint-placeholder-count="3">
+      <button onClick="{{ r.open }}" style="background:{{ tCard }};border:none;border-radius:16px;padding:14px 15px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(23,25,30,.05);text-align:left;opacity:{{ r.opacity }}" style-active="transform:scale(.98)">
+        <div style="flex:1;min-width:0"><div style="display:flex;align-items:baseline;gap:8px"><span style="font:700 12.5px 'IBM Plex Mono',monospace;color:#ed872d">{{ r.id }}</span><span style="font-size:11px;font-weight:600;color:#9aa0ab">{{ r.wave }}</span></div><div style="font-size:14.5px;font-weight:700;color:{{ tText }};margin-top:3px">{{ r.customer }}</div><div style="font-size:12px;font-weight:600;color:{{ tSub }};margin-top:2px">{{ r.meta }}</div></div>
+        <span style="font:700 16px 'IBM Plex Mono',monospace;color:{{ r.statusColor }}">{{ r.statusText }}</span>
+      </button>
+    </sc-for>
+  </div>
+</div>
+</sc-if>
+
 <sc-if value="{{ isPick }}" hint-placeholder-val="{{ false }}">
 <div style="flex:1;display:flex;flex-direction:column;overflow:hidden" data-screen-label="Picking">
   <div style="background:#ed872d;padding:12px 20px 18px;border-radius:0 0 26px 26px;flex:none">
-    <div style="display:flex;justify-content:space-between;align-items:center"><button onClick="{{ goHome }}" style="width:36px;height:36px;border:none;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;font-size:18px">‹</button><div style="text-align:center"><div style="font-size:15px;font-weight:800;color:#fff">Picking</div><div style="font-size:11.5px;font-weight:600;color:rgba(255,255,255,.8)">SO-10482 · Wave 12</div></div><span style="font:700 12px 'IBM Plex Mono',monospace;background:rgba(255,255,255,.2);color:#fff;padding:4px 9px;border-radius:10px">{{ pickIdx }}</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:center"><button onClick="{{ goPickBack }}" style="width:36px;height:36px;border:none;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;font-size:18px">‹</button><div style="text-align:center"><div style="font-size:15px;font-weight:800;color:#fff">Picking</div><div style="font-size:11.5px;font-weight:600;color:rgba(255,255,255,.8)">{{ pickOrderId }} · {{ pickCustomer }}</div></div><button onClick="{{ togglePickList }}" style="border:none;font:700 12px 'IBM Plex Mono',monospace;background:rgba(255,255,255,.2);color:#fff;padding:6px 10px;border-radius:10px">{{ pickIdx }} {{ pickListArrow }}</button></div>
     <div style="height:6px;background:rgba(255,255,255,.25);border-radius:3px;margin-top:14px"><div style="width:{{ pickPct }};height:100%;background:#fff;border-radius:3px;transition:width .3s"></div></div>
   </div>
+  <sc-if value="{{ pickListOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="flex:1;padding:14px 18px;display:flex;flex-direction:column;gap:8px;overflow:auto">
+    <div style="font-size:11px;font-weight:800;letter-spacing:1.5px;color:#9aa0ab">ΣΕΙΡΑ ΠΡΟΤΕΡΑΙΟΤΗΤΑΣ · ΑΠΟ ΔΙΑΧΕΙΡΙΣΤΙΚΟ</div>
+    <sc-for list="{{ pickListRows }}" as="r" hint-placeholder-count="3">
+      <div style="background:{{ tCard }};border:2px solid {{ r.border }};border-radius:16px;padding:12px 14px;display:flex;align-items:center;gap:12px;opacity:{{ r.opacity }}">
+        <span style="width:32px;height:32px;border-radius:10px;background:{{ r.numBg }};display:flex;align-items:center;justify-content:center;font:700 12px 'IBM Plex Mono',monospace;color:{{ r.numColor }}">{{ r.num }}</span>
+        <div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;gap:8px"><span style="font:700 12px 'IBM Plex Mono',monospace;color:#ed872d">{{ r.sku }}</span><span style="font:600 12px 'IBM Plex Mono',monospace;color:{{ tSub }}">{{ r.loc }}</span></div><div style="font-size:13px;font-weight:600;color:{{ tText }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</div></div>
+        <span style="font:700 17px 'IBM Plex Mono',monospace;color:{{ r.qtyColor }}">{{ r.qtyText }}</span>
+      </div>
+    </sc-for>
+    <button onClick="{{ togglePickList }}" style="margin-top:auto;height:50px;border:none;border-radius:25px;background:#ed872d;color:#fff;font:800 14px Commissioner,sans-serif">Συνέχεια picking</button>
+  </div>
+  </sc-if>
+  <sc-if value="{{ pickListClosed }}" hint-placeholder-val="{{ true }}">
   <div style="flex:1;padding:14px 18px;display:flex;flex-direction:column;gap:11px;overflow:auto">
     <div style="background:{{ tCard }};border-radius:18px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(23,25,30,.05)"><div style="font-size:10.5px;font-weight:800;letter-spacing:2px;color:#9aa0ab">ΘΕΣΗ</div><div style="font:700 36px 'IBM Plex Mono',monospace;color:{{ tText }};margin-top:2px">{{ pickLoc }}</div><div style="display:inline-block;margin-top:6px;font-size:11.5px;font-weight:700;color:#ed872d;background:{{ tTint }};border-radius:12px;padding:4px 11px">{{ pickZone }}</div></div>
-    <div style="background:{{ tCard }};border-radius:18px;padding:13px 15px;display:flex;flex-direction:column;gap:5px;box-shadow:0 2px 8px rgba(23,25,30,.05)"><div style="display:flex;justify-content:space-between"><span style="font:700 12px 'IBM Plex Mono',monospace;color:#ed872d">{{ pickSku }}</span><span style="font-size:12px;font-weight:600;color:#9aa0ab">Παρτίδα {{ pickLot }}</span></div><div style="font-size:14.5px;font-weight:700;color:{{ tText }};line-height:1.35">{{ pickName }}</div><div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:4px"><span style="font-size:12.5px;font-weight:600;color:#9aa0ab">Ποσότητα</span><span style="font:700 24px 'IBM Plex Mono',monospace;color:#ed872d">{{ pickGot }}<span style="font-size:15px;color:#9aa0ab">/{{ pickQty }}</span></span></div></div>
-    <div style="border:2px dashed #ed872d;background:{{ tTint }};border-radius:16px;padding:12px;text-align:center"><div style="font-size:13.5px;font-weight:700;color:{{ tDeep }}">{{ pickLeftText }}</div><div style="font-size:11.5px;font-weight:600;color:#9aa0ab;margin-top:2px">Με τη συμπλήρωση περνάει αυτόματα στο επόμενο είδος</div></div>
+    <div style="background:{{ tCard }};border-radius:18px;padding:13px 15px;display:flex;flex-direction:column;gap:5px;box-shadow:0 2px 8px rgba(23,25,30,.05)"><div style="display:flex;justify-content:space-between"><span style="font:700 12px 'IBM Plex Mono',monospace;color:#ed872d">{{ pickSku }}</span><span style="font-size:12px;font-weight:600;color:#9aa0ab">Παρτίδα {{ pickLot }}</span></div><div style="font-size:14.5px;font-weight:700;color:{{ tText }};line-height:1.35">{{ pickName }}</div><div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:4px"><span style="font-size:13px;font-weight:700;color:#9aa0ab">Ποσότητα</span><span style="font:700 32px 'IBM Plex Mono',monospace;color:#ed872d">{{ pickGot }}<span style="font-size:19px;color:#9aa0ab">/{{ pickQty }}</span></span></div></div>
+    <div style="border:2px dashed #ed872d;background:{{ tTint }};border-radius:16px;padding:12px;text-align:center"><div style="font-size:13.5px;font-weight:700;color:{{ tDeep }}">{{ pickLeftText }}</div><div style="font-size:11.5px;font-weight:600;color:#9aa0ab;margin-top:2px">Μπορείς να σαρώσεις όποιο είδος της παραγγελίας θες — γεμίζει η δική του ποσότητα</div></div>
     <button onClick="{{ openPickFill }}" style="height:46px;border:1.5px solid {{ tBorder }};border-radius:23px;background:{{ tCard }};font:700 13px Commissioner,sans-serif;color:{{ tText }}">Αναπλήρωση θέσης {{ pickLoc }}</button>
     <div style="margin-top:auto;background:{{ tCard }};border-radius:16px;padding:11px 16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 8px rgba(23,25,30,.05)"><span style="font-size:11px;font-weight:800;letter-spacing:1.5px;color:#9aa0ab">ΕΠΟΜΕΝΟ</span><span style="font:600 12.5px 'IBM Plex Mono',monospace;color:{{ tText }}">{{ pickNextText }}</span></div>
   </div>
+  </sc-if>
 </div>
 </sc-if>
 
@@ -133,10 +165,11 @@
   <div style="background:{{ tCard }};border-radius:22px;padding:28px 22px;text-align:center;box-shadow:0 2px 8px rgba(23,25,30,.05)">
     <div style="width:64px;height:64px;border-radius:50%;background:{{ tOkTint }};display:flex;align-items:center;justify-content:center;margin:0 auto;font-size:28px;color:#22a55c;font-weight:800">✓</div>
     <div style="font-size:20px;font-weight:800;color:{{ tText }};margin-top:14px">Παραγγελία ολοκληρώθηκε</div>
-    <div style="font:600 13px 'IBM Plex Mono',monospace;color:#9aa0ab;margin-top:4px">SO-10482 · Wave 12</div>
-    <div style="display:flex;justify-content:center;gap:26px;margin-top:18px"><div><div style="font:800 22px Commissioner,sans-serif;color:{{ tText }}">6</div><div style="font-size:11.5px;font-weight:600;color:#9aa0ab">τεμάχια</div></div><div><div style="font:800 22px Commissioner,sans-serif;color:{{ tText }}">3</div><div style="font-size:11.5px;font-weight:600;color:#9aa0ab">γραμμές</div></div><div><div style="font:800 22px Commissioner,sans-serif;color:#22a55c">04:12</div><div style="font-size:11.5px;font-weight:600;color:#9aa0ab">χρόνος</div></div></div>
+    <div style="font:600 13px 'IBM Plex Mono',monospace;color:#9aa0ab;margin-top:4px">{{ doneOrderId }}</div>
+    <div style="display:flex;justify-content:center;gap:26px;margin-top:18px"><div><div style="font:800 22px Commissioner,sans-serif;color:{{ tText }}">{{ doneUnits }}</div><div style="font-size:11.5px;font-weight:600;color:#9aa0ab">τεμάχια</div></div><div><div style="font:800 22px Commissioner,sans-serif;color:{{ tText }}">{{ doneLines }}</div><div style="font-size:11.5px;font-weight:600;color:#9aa0ab">γραμμές</div></div><div><div style="font:800 22px Commissioner,sans-serif;color:#22a55c">04:12</div><div style="font-size:11.5px;font-weight:600;color:#9aa0ab">χρόνος</div></div></div>
   </div>
-  <button onClick="{{ goHome }}" style="height:56px;border:none;border-radius:28px;background:#ed872d;color:#fff;font:800 15px Commissioner,sans-serif;box-shadow:0 6px 16px rgba(237,135,45,.4)">Επιστροφή στην αρχική</button>
+  <button onClick="{{ doneNext }}" style="height:56px;border:none;border-radius:28px;background:#ed872d;color:#fff;font:800 15px Commissioner,sans-serif;box-shadow:0 6px 16px rgba(237,135,45,.4)">{{ doneNextLabel }}</button>
+  <button onClick="{{ goPlist }}" style="height:48px;border:1.5px solid {{ tBorder }};border-radius:24px;background:{{ tCard }};color:{{ tSub }};font:700 13.5px Commissioner,sans-serif">Λίστα παραγγελιών</button>
 </div>
 </sc-if>
 
@@ -338,7 +371,8 @@ class Component extends DCLogic {
   state = {
     screen: 'login', pin: '',
     flashOk: false, flashErr: false, toast: null,
-    pick: { i: 0, got: 0, units: 0 }, donePick: false,
+    pick: { got: [0, 0, 0], units: 0, cur: 0 }, po: 0, pickSaves: {}, ordDone: [false, false, false],
+    pstats: { orders: 0, units: 0 }, pickList: false,
     fill: { phase: 'from', from: null },
     rcvGot: [0, 0, 0], doneRcv: false,
     put: { i: 0, phase: 'item' }, donePut: false,
@@ -424,11 +458,29 @@ class Component extends DCLogic {
     return bars;
   }
   setLblSku(v) { v = String(v).trim().toUpperCase(); if (v) this.setState({ lbl: { ...this.state.lbl, sku: v, q: '' } }); }
-  PICK = [
-    { loc: 'B-03-12', zone: 'Διάδρομος B · Ράφι 3', sku: 'SAMR173', name: 'Γνήσια Οθόνη LCD Samsung Galaxy A51', lot: 'L-2265', qty: 2 },
-    { loc: 'B-03-15', zone: 'Διάδρομος B · Ράφι 3', sku: 'MIR130', name: 'Οθόνη LCD Xiaomi Redmi 13C / Poco C65', lot: 'L-2270', qty: 1 },
-    { loc: 'C-01-04', zone: 'Διάδρομος C · Ράφι 1', sku: 'LAPBAT033', name: 'Μπαταρία A2171 MacBook Pro 13"', lot: '—', qty: 3 }
+  ORDERS = [
+    {
+      id: 'SO-10482', wave: 'Wave 12', customer: 'Κινητοτεχνική ΑΕ', lines: [
+        { loc: 'B-03-12', zone: 'Διάδρομος B · Ράφι 3', sku: 'SAMR173', name: 'Γνήσια Οθόνη LCD Samsung Galaxy A51', lot: 'L-2265', qty: 2 },
+        { loc: 'B-03-15', zone: 'Διάδρομος B · Ράφι 3', sku: 'MIR130', name: 'Οθόνη LCD Xiaomi Redmi 13C / Poco C65', lot: 'L-2270', qty: 1 },
+        { loc: 'C-01-04', zone: 'Διάδρομος C · Ράφι 1', sku: 'LAPBAT033', name: 'Μπαταρία A2171 MacBook Pro 13"', lot: '—', qty: 3 }]
+    },
+    {
+      id: 'SO-10483', wave: 'Wave 12', customer: 'Mobile Center Πάτρα', lines: [
+        { loc: 'B-04-02', zone: 'Διάδρομος B · Ράφι 4', sku: 'MIR130', name: 'Οθόνη LCD Xiaomi Redmi 13C / Poco C65', lot: 'L-2270', qty: 2 },
+        { loc: 'C-02-08', zone: 'Διάδρομος C · Ράφι 2', sku: 'G038', name: 'QIANLI B640 Τροφοδοτικό 40W', lot: '—', qty: 1 }]
+    },
+    {
+      id: 'SO-10484', wave: 'Wave 13', customer: 'TechFix Ηράκλειο', lines: [
+        { loc: 'A-01-03', zone: 'Διάδρομος A · Ράφι 1', sku: 'SAMR165', name: 'Οθόνη LCD Samsung Galaxy A21s', lot: 'L-2251', qty: 4 },
+        { loc: 'C-01-04', zone: 'Διάδρομος C · Ράφι 1', sku: 'LAPBAT033', name: 'Μπαταρία A2171 MacBook Pro 13"', lot: '—', qty: 1 }]
+    }
   ];
+  get PICK() { return this.ORDERS[this.state.po ?? 0].lines; }
+  startOrder(i) {
+    const sv = this.state.pickSaves[i];
+    this.setState({ po: i, pick: sv || { got: this.ORDERS[i].lines.map(() => 0), units: 0, cur: 0 }, screen: 'pick' });
+  }
   RCV = [
     { sku: 'SAMR165', name: 'Οθόνη LCD Samsung Galaxy A21s', exp: 10 },
     { sku: 'MIR109', name: 'Οθόνη LCD Xiaomi Redmi Note 11', exp: 6 },
@@ -499,8 +551,8 @@ class Component extends DCLogic {
       case 'login': return { code: 'BADGE-7734' };
       case 'search': return { code: 'SAMR173' };
       case 'label': return { code: 'MIR130' };
-      case 'pick': return { code: (this.PICK[s.pick.i] || {}).sku };
-      case 'fill': return s.fill.phase === 'from' ? { code: 'R-11-02' } : { code: this.PICK[s.pick.i].loc };
+      case 'pick': return { code: (this.PICK[this.pickCur()] || {}).sku };
+      case 'fill': return s.fill.phase === 'from' ? { code: 'R-11-02' } : { code: this.PICK[this.pickCur()].loc };
       case 'rcv': { const l = this.RCV.find((x, i) => s.rcvGot[i] < x.exp); return l ? { code: l.sku } : null; }
       case 'put': { const T = this.PUT[s.put.i]; if (!T) return null; return s.put.phase === 'item' ? { code: T.sku } : { code: T.loc, alt: 'D-05-09' }; }
       case 'pack': { const l = this.PACK.find((x, i) => s.packGot[i] < x.qty); return l ? { code: l.sku } : null; }
@@ -518,13 +570,14 @@ class Component extends DCLogic {
       case 'search': this.doSearch(code); return;
       case 'label': this.fb(true); this.setLblSku(code); return;
       case 'pick': {
-        const L = this.PICK[s.pick.i];
-        if (code === L.sku) { this.fb(true); this.pickItem(); }
-        else this.err('Λάθος προϊόν — αναμένεται ' + L.sku);
+        const idx = this.PICK.findIndex((l, i) => l.sku === code && s.pick.got[i] < l.qty);
+        if (idx >= 0) { this.fb(true); this.pickItem(idx); }
+        else if (this.PICK.some(l => l.sku === code)) this.err('Το είδος ' + code + ' έχει ήδη συμπληρωθεί');
+        else this.err('Το ' + code + ' δεν είναι στην παραγγελία');
         return;
       }
       case 'fill': {
-        const target = this.PICK[s.pick.i].loc;
+        const target = this.PICK[this.pickCur()].loc;
         if (s.fill.phase === 'from') {
           if (this.isLoc(code)) { this.fb(true); this.setState({ fill: { phase: 'to', from: code } }); }
           else this.err('Σάρωσε θέση προέλευσης (π.χ. R-11-02)');
@@ -592,13 +645,31 @@ class Component extends DCLogic {
       this.setState({ [key]: { phase: 'item', sku: null, qty: 0, from: null } });
     }
   }
-  pickItem() {
-    const s = this.state, L = this.PICK[s.pick.i], got = s.pick.got + 1, units = s.pick.units + 1;
-    this.enqueue('PICK ' + L.sku);
-    if (got < L.qty) { this.setState({ pick: { ...s.pick, got, units } }); return; }
-    if (s.pick.i + 1 >= this.PICK.length) { this.setState({ pick: { ...s.pick, got, units }, screen: 'pickdone', donePick: true }); return; }
-    this.setState({ pick: { i: s.pick.i + 1, got: 0, units } });
-    this.showToast('Γραμμή ολοκληρώθηκε — επόμενο είδος', 1300);
+  pickCur() {
+    if (!Array.isArray(this.state.pick.got)) this.state.pick = { got: this.PICK.map(() => 0), units: 0, cur: 0 };
+    const s = this.state, g = s.pick.got;
+    if (this.PICK[s.pick.cur] && g[s.pick.cur] < this.PICK[s.pick.cur].qty) return s.pick.cur;
+    const j = this.PICK.findIndex((l, i) => g[i] < l.qty);
+    return j < 0 ? s.pick.cur : j;
+  }
+  pickItem(idx) {
+    const s = this.state, L = this.PICK[idx], po = s.po ?? 0;
+    const got = [...s.pick.got]; got[idx]++;
+    const units = s.pick.units + 1;
+    this.enqueue('PICK ' + L.sku + ' (' + this.ORDERS[po].id + ')');
+    const pstats = { ...s.pstats, units: s.pstats.units + 1 };
+    const allDone = this.PICK.every((l, i) => got[i] >= l.qty);
+    const pickSaves = { ...s.pickSaves, [po]: { got, units, cur: idx } };
+    if (allDone) {
+      const od = [...s.ordDone]; od[po] = true;
+      this.setState({ pick: { got, units, cur: idx }, pickSaves, ordDone: od, pstats: { ...pstats, orders: s.pstats.orders + 1 }, screen: 'pickdone' });
+      return;
+    }
+    if (got[idx] >= L.qty) {
+      const next = this.PICK.findIndex((l, i) => got[i] < l.qty);
+      this.setState({ pick: { got, units, cur: next }, pickSaves, pstats });
+      this.showToast('Γραμμή ολοκληρώθηκε — επόμενο είδος', 1300);
+    } else this.setState({ pick: { got, units, cur: idx }, pickSaves, pstats });
   }
   putNext(overrideLoc) {
     const s = this.state, T = this.PUT[s.put.i];
@@ -656,13 +727,14 @@ class Component extends DCLogic {
         this.setState({ cnt: { ...c, qty } });
       }
     }));
-    const cPick = s.donePick ? 0 : this.PICK.length - s.pick.i;
+    const cPick = s.ordDone.filter(d => !d).length;
+    const allPick = s.ordDone.every(Boolean);
     const cRcv = s.doneRcv ? 0 : 1, cPut = s.donePut ? 0 : this.PUT.length - s.put.i;
     const cPack = s.donePack ? 0 : 1, cCnt = s.doneCnt ? 0 : this.CNT.length - s.cnt.i;
     const totalTasks = cPick + cRcv + cPut + cPack + cCnt;
     const mods = [
       ['RCV', 'Παραλαβή', String(cRcv), 'rcv', s.doneRcv], ['PUT', 'Τοποθέτηση', String(cPut), 'put', s.donePut],
-      ['PICK', 'Picking', String(cPick), 'pick', s.donePick], ['PACK', 'Packing', String(cPack), 'pack', s.donePack],
+      ['PICK', 'Picking', String(cPick), 'plist', allPick], ['PACK', 'Packing', String(cPack), 'pack', s.donePack],
       ['RPL', 'Αναπλήρωση', '›', 'repl', false], ['INV', 'Απογραφή', String(cCnt), 'cnt', s.doneCnt],
       ['MOV', 'Μετακινήσεις', '›', 'mov', false], ['FND', 'Αναζήτηση', '›', 'search', false],
       ['LBL', 'Ετικέτες', '›', 'label', false]
@@ -670,10 +742,13 @@ class Component extends DCLogic {
     const modules = mods.map(([code, name, c, scr, done]) => ({
       code, name, countText: done ? '✓' : c, open: () => this.openModule(scr, done)
     }));
-    const PL = this.PICK[s.pick.i] || this.PICK[this.PICK.length - 1];
-    const nextL = this.PICK[s.pick.i + 1];
+    const curI = this.pickCur();
+    const PL = this.PICK[curI] || this.PICK[0];
+    const gotArr = Array.isArray(s.pick.got) ? s.pick.got : this.PICK.map(() => 0);
+    const doneLines = this.PICK.filter((l, i) => gotArr[i] >= l.qty).length;
+    const nextL = this.PICK.find((l, i) => i !== curI && gotArr[i] < l.qty);
     const totalUnits = this.PICK.reduce((a, l) => a + l.qty, 0);
-    const remaining = PL.qty - s.pick.got;
+    const remaining = PL.qty - gotArr[curI];
     const PT = this.PUT[s.put.i] || this.PUT[this.PUT.length - 1];
     const CT = this.CNT[s.cnt.i] || this.CNT[this.CNT.length - 1];
     const rcvDone = this.RCV.every((l, i) => s.rcvGot[i] >= l.exp);
@@ -703,6 +778,7 @@ class Component extends DCLogic {
       isLogin: s.screen === 'login', isDash: s.screen === 'dash', isTasks: s.screen === 'tasks',
       isSearch: s.screen === 'search', isProfile: s.screen === 'profile',
       isPick: s.screen === 'pick', isPickFill: s.screen === 'fill', isPickDone: s.screen === 'pickdone',
+      isPlist: s.screen === 'plist',
       isRcv: s.screen === 'rcv', isPut: s.screen === 'put', isPack: s.screen === 'pack',
       isRepl: s.screen === 'repl', isCnt: s.screen === 'cnt', isMov: s.screen === 'mov',
       isLabel: s.screen === 'label', isHist: s.screen === 'hist',
@@ -712,7 +788,7 @@ class Component extends DCLogic {
       goHome: () => this.setState({ screen: 'dash' }), goTasks: () => this.setState({ screen: 'tasks' }),
       goSearch: () => this.setState({ screen: 'search' }), goProfile: () => this.setState({ screen: 'profile' }),
       logout: () => this.setState({ screen: 'login', pin: '' }),
-      startWork: () => this.openModule(s.donePick ? 'rcv' : 'pick', false),
+      startWork: () => this.openModule(allPick ? 'rcv' : 'plist', false),
       badgeLogin: () => { this.fb(true); this.later(() => this.loginAs('BADGE-7734'), 250); },
       pinDots: [0, 1, 2, 3].map(i => ({ bg: i < s.pin.length ? '#ed872d' : '#eceef2' })),
       keys, modules, totalTasks,
@@ -752,11 +828,50 @@ class Component extends DCLogic {
       scanAlt: () => { const e = this.demo(); if (e && e.alt) this.onScan(e.alt); },
       scanWrong: () => this.onScan('XXX-0000'),
       pickLoc: PL.loc, pickZone: PL.zone, pickSku: PL.sku, pickName: PL.name, pickLot: PL.lot,
-      pickQty: PL.qty, pickGot: s.pick.got,
-      pickIdx: Math.min(s.pick.i + 1, this.PICK.length) + '/' + this.PICK.length,
+      pickQty: PL.qty, pickGot: gotArr[curI],
+      pickIdx: doneLines + '/' + this.PICK.length,
       pickPct: Math.round(100 * s.pick.units / totalUnits) + '%',
       pickLeftText: remaining === 1 ? 'Σάρωσε 1 τεμάχιο' : 'Σάρωσε ' + remaining + ' τεμάχια',
       pickNextText: nextL ? nextL.loc + ' · ' + nextL.sku + ' ×' + nextL.qty : 'Τελευταίο είδος',
+      pickOrderId: this.ORDERS[s.po ?? 0].id, pickCustomer: this.ORDERS[s.po ?? 0].customer,
+      plistProg: s.ordDone.filter(Boolean).length + '/' + this.ORDERS.length,
+      plistRows: this.ORDERS.map((o, i) => {
+        const total = o.lines.reduce((a, l) => a + l.qty, 0);
+        const sv = s.pickSaves[i];
+        const scanned = sv ? sv.got.reduce((a, b) => a + b, 0) : 0;
+        const done = s.ordDone[i];
+        return {
+          id: o.id, customer: o.customer, wave: o.wave,
+          meta: o.lines.length + ' γραμμές · ' + total + ' τεμ',
+          statusText: done ? '✓' : (scanned > 0 ? scanned + '/' + total : '›'),
+          statusColor: done ? '#22a55c' : (scanned > 0 ? '#ed872d' : '#9aa0ab'),
+          opacity: done ? .55 : 1,
+          open: () => { if (done) this.showToast('Η παραγγελία έχει ολοκληρωθεί'); else this.startOrder(i); }
+        };
+      }),
+      goPlist: () => this.setState({ screen: 'plist' }),
+      goPickBack: () => { const saves = { ...this.state.pickSaves, [this.state.po ?? 0]: this.state.pick }; this.setState({ pickSaves: saves, screen: 'plist' }); },
+      doneOrderId: this.ORDERS[s.po ?? 0].id + ' · ' + this.ORDERS[s.po ?? 0].customer,
+      doneUnits: String(this.ORDERS[s.po ?? 0].lines.reduce((a, l) => a + l.qty, 0)),
+      doneLines: String(this.ORDERS[s.po ?? 0].lines.length),
+      doneNextLabel: s.ordDone.some(d => !d) ? 'Επόμενη παραγγελία ›' : 'Επιστροφή στην αρχική',
+      doneNext: () => { const n = this.state.ordDone.findIndex(d => !d); if (n >= 0) this.startOrder(n); else this.setState({ screen: 'dash' }); },
+      statUnits: String(s.pstats.units), statOrders: String(s.pstats.orders),
+      pickListOpen: s.pickList, pickListClosed: !s.pickList,
+      pickListArrow: s.pickList ? '▴' : '▾',
+      togglePickList: () => this.setState({ pickList: !this.state.pickList }),
+      pickListRows: this.PICK.map((l, i) => {
+        const done = gotArr[i] >= l.qty, cur = i === curI && !done;
+        return {
+          num: String(i + 1).padStart(2, '0'), sku: l.sku, name: l.name, loc: l.loc,
+          qtyText: done ? '✓' : (gotArr[i] > 0 || cur ? gotArr[i] + '/' + l.qty : '×' + l.qty),
+          qtyColor: done ? '#22a55c' : (cur || gotArr[i] > 0 ? '#ed872d' : '#9aa0ab'),
+          border: cur ? '#ed872d' : 'transparent',
+          numBg: done ? (dk ? 'rgba(34,165,92,.18)' : '#e6f7ee') : (dk ? 'rgba(237,135,45,.14)' : '#fdf1e6'),
+          numColor: done ? '#22a55c' : '#ed872d',
+          opacity: done ? .55 : 1
+        };
+      }),
       openPickFill: () => this.setState({ screen: 'fill', fill: { phase: 'from', from: null } }),
       backToPick: () => this.setState({ screen: 'pick', fill: { phase: 'from', from: null } }),
       fillTarget: PL.loc, fillFrom: s.fill.from || '—',
