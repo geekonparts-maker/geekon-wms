@@ -481,7 +481,8 @@ class Component extends DCLogic {
       const ac = this.ac = this.ac || new (window.AudioContext || window.webkitAudioContext)();
       const t = ac.currentTime;
       const mk = (f, t0, d, type, gv) => { const o = ac.createOscillator(), g = ac.createGain(); o.type = type; o.frequency.value = f; g.gain.setValueAtTime(gv || .18, t + t0); g.gain.exponentialRampToValueAtTime(.001, t + t0 + d); o.connect(g); g.connect(ac.destination); o.start(t + t0); o.stop(t + t0 + d); };
-      if (ok) { mk(2730, 0, .12, 'square', .35); } else { mk(310, 0, .45, 'square', .55); }
+      if (ok) { mk(1320, 0, .09, 'triangle', .4); mk(1980, .1, .14, 'triangle', .4); }
+      else mk(180, 0, .6, 'sawtooth', .6);
     } catch (e) { }
   }
   fb(ok) {
@@ -735,6 +736,7 @@ class Component extends DCLogic {
       connDot: this.isOnline() ? '#fff' : '#ffce8a',
       connText: this.isOnline() ? 'Online · RF-05' : 'Offline · ' + s.queue.length + ' σε αναμονή',
       toggleOffline: () => { const off = !this.state.simOff; this.setState({ simOff: off }); if (!off) this.later(() => this.drain(), 700); },
+
       offlineBtnText: s.simOff ? 'Επαναφορά σύνδεσης' : 'Προσομοίωση offline',
       camFab: mob && !s.cam && s.screen !== 'login',
       camOpen: s.cam,
