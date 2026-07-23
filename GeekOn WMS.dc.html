@@ -17,6 +17,10 @@
 
 <div style="width:{{ devW }};max-width:100%;height:{{ devH }};background:#f7f5f2;border:{{ devBorder }};border-radius:{{ devRadius }};overflow:hidden;display:flex;flex-direction:column;box-shadow:0 16px 40px rgba(0,0,0,.2);position:relative" data-screen-label="GeekOn WMS">
 
+<sc-if value="{{ isOffline }}" hint-placeholder-val="{{ false }}">
+<div style="background:#17191e;color:#fff;padding:8px 14px;text-align:center;font-size:12px;font-weight:700;flex:none;display:flex;align-items:center;justify-content:center;gap:8px"><span style="width:7px;height:7px;border-radius:50%;background:#ed872d"></span>{{ offlineText }}</div>
+</sc-if>
+
 <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
 <div style="flex:1;display:flex;flex-direction:column;background:#17191e;overflow:hidden" data-screen-label="Login">
   <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 18px 0;font-size:12px;font-weight:700;color:rgba(255,255,255,.85)"><span>14:32</span><span style="display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:#4ade80"></span>WMS-05</span></div>
@@ -36,7 +40,7 @@
 <sc-if value="{{ isDash }}" hint-placeholder-val="{{ false }}">
 <div style="flex:1;display:flex;flex-direction:column;overflow:hidden" data-screen-label="Dashboard">
   <div style="background:#ed872d;padding:12px 20px 42px;border-radius:0 0 26px 26px;flex:none">
-    <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:rgba(255,255,255,.85)"><span>14:32</span><span style="display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:#fff"></span>Online · RF-05</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:rgba(255,255,255,.85)"><span>14:32</span><span style="display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:{{ connDot }}"></span>{{ connText }}</span></div>
     <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:12px"><div><div style="font-size:22px;font-weight:800;color:#fff">Γεια σου, Νίκος!</div><div style="font-size:12.5px;font-weight:600;color:rgba(255,255,255,.8);margin-top:2px">Βάρδια Α · Ζώνη B</div></div><button onClick="{{ goProfile }}" style="width:44px;height:44px;border:none;border-radius:50%;background:#fff;font:800 15px Commissioner,sans-serif;color:#ed872d">ΝΚ</button></div>
   </div>
   <div style="margin:-26px 18px 0;background:#fff;border-radius:18px;padding:13px 18px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 6px 18px rgba(23,25,30,.08);flex:none"><div><div style="font-size:12px;font-weight:600;color:#9aa0ab">Εκκρεμείς εργασίες</div><div style="font:800 26px Commissioner,sans-serif;color:#17191e">{{ totalTasks }}</div></div><button onClick="{{ startWork }}" style="height:44px;padding:0 18px;border:none;border-radius:22px;background:#ed872d;color:#fff;font:700 13.5px Commissioner,sans-serif">Ξεκίνα ›</button></div>
@@ -78,7 +82,7 @@
 <sc-if value="{{ isProfile }}" hint-placeholder-val="{{ false }}">
 <div style="flex:1;display:flex;flex-direction:column;overflow:hidden" data-screen-label="Προφίλ">
   <div style="background:#ed872d;padding:12px 20px 22px;border-radius:0 0 26px 26px;flex:none">
-    <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:rgba(255,255,255,.85)"><span>14:32</span><span>Online · RF-05</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:rgba(255,255,255,.85)"><span>14:32</span><span>{{ connText }}</span></div>
     <div style="display:flex;align-items:center;gap:14px;margin-top:14px"><div style="width:52px;height:52px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font:800 17px Commissioner,sans-serif;color:#ed872d">ΝΚ</div><div><div style="font-size:19px;font-weight:800;color:#fff">Νίκος Καραγιάννης</div><div style="font-size:12px;font-weight:600;color:rgba(255,255,255,.8)">Picker · Βάρδια Α · Ζώνη B</div></div></div>
   </div>
   <div style="flex:1;overflow:auto;padding:16px 18px;display:flex;flex-direction:column;gap:12px">
@@ -309,6 +313,7 @@
   <button onClick="{{ scanExpected }}" style="height:46px;border:none;border-radius:12px;background:#ed872d;color:#fff;font:700 13px 'IBM Plex Mono',monospace">SCAN: {{ expectedCode }}</button>
   <sc-if value="{{ altVisible }}" hint-placeholder-val="{{ false }}"><button onClick="{{ scanAlt }}" style="height:42px;border:1.5px solid #ed872d;border-radius:12px;background:#fdf1e6;color:#c96f1e;font:700 12.5px 'IBM Plex Mono',monospace">SCAN: {{ altCode }} (άλλη θέση)</button></sc-if>
   <button onClick="{{ scanWrong }}" style="height:42px;border:1.5px solid #e2e5ea;border-radius:12px;background:#fff;color:#6b7280;font:600 12.5px Commissioner,sans-serif">Λάθος barcode</button>
+  <button onClick="{{ toggleOffline }}" style="height:42px;border:1.5px solid #e2e5ea;border-radius:12px;background:#fff;color:#6b7280;font:600 12.5px Commissioner,sans-serif">{{ offlineBtnText }}</button>
 </div>
 </sc-if>
 
@@ -328,8 +333,23 @@ class Component extends DCLogic {
     mov: { phase: 'item', sku: null, qty: 0, from: null },
     cnt: { i: 0, phase: 'loc', qty: '' }, doneCnt: false,
     searchQ: '', searchRes: null, cam: false,
+    netUp: typeof navigator !== 'undefined' ? navigator.onLine : true, simOff: false, queue: [],
     lbl: { sku: 'SAMR173', copies: 2, q: '' }
   };
+  isOnline() { return this.state.netUp && !this.state.simOff; }
+  enqueue(op) {
+    if (this.isOnline()) return;
+    const q = [...this.state.queue, { op, t: Date.now() }];
+    this.setState({ queue: q });
+    try { localStorage.setItem('geekon_wms_queue', JSON.stringify(q)); } catch (e) { }
+  }
+  drain() {
+    const n = this.state.queue.length;
+    if (!n || !this.isOnline()) return;
+    this.setState({ queue: [] });
+    try { localStorage.removeItem('geekon_wms_queue'); } catch (e) { }
+    this.showToast('Συγχρονίστηκαν ' + n + ' κινήσεις με το WMS', 2200);
+  }
   async openCam() {
     this.setState({ cam: true });
     try {
@@ -406,6 +426,10 @@ class Component extends DCLogic {
   isLoc(c) { return /^[A-Z]-\d{2}-\d{2}$/.test(c); }
   skuName(c) { return this.DB[c] ? this.DB[c].name : 'Είδος ' + c; }
   componentDidMount() {
+    try { const q = JSON.parse(localStorage.getItem('geekon_wms_queue') || '[]'); if (q.length) this.setState({ queue: q }); } catch (e) { }
+    this.onNet = () => { this.setState({ netUp: navigator.onLine }); this.later(() => this.drain(), 900); };
+    window.addEventListener('online', this.onNet);
+    window.addEventListener('offline', this.onNet);
     this.mq = window.matchMedia('(max-width: 560px), (max-height: 800px) and (pointer: coarse)');
     this.onMq = () => this.forceUpdate();
     this.mq.addEventListener('change', this.onMq);
@@ -417,7 +441,7 @@ class Component extends DCLogic {
     };
     window.addEventListener('keydown', this.kd);
   }
-  componentWillUnmount() { window.removeEventListener('keydown', this.kd); this.mq && this.mq.removeEventListener('change', this.onMq); this.closeCam(); this.timers && this.timers.forEach(clearTimeout); }
+  componentWillUnmount() { window.removeEventListener('keydown', this.kd); window.removeEventListener('online', this.onNet); window.removeEventListener('offline', this.onNet); this.mq && this.mq.removeEventListener('change', this.onMq); this.closeCam(); this.timers && this.timers.forEach(clearTimeout); }
   later(fn, ms) { (this.timers = this.timers || []).push(setTimeout(fn, ms)); }
   beep(ok) {
     if ((this.props.sound ?? true) === false) return;
@@ -472,14 +496,14 @@ class Component extends DCLogic {
           if (this.isLoc(code)) { this.fb(true); this.setState({ fill: { phase: 'to', from: code } }); }
           else this.err('Σάρωσε θέση προέλευσης (π.χ. R-11-02)');
         } else {
-          if (code === target) { this.fb(true); this.showToast('Η θέση ' + target + ' αναπληρώθηκε από ' + s.fill.from); this.setState({ screen: 'pick', fill: { phase: 'from', from: null } }); }
+          if (code === target) { this.fb(true); this.enqueue('RPL ' + s.fill.from + '→' + target); this.showToast('Η θέση ' + target + ' αναπληρώθηκε από ' + s.fill.from); this.setState({ screen: 'pick', fill: { phase: 'from', from: null } }); }
           else this.err('Σάρωσε τη θέση picking ' + target);
         }
         return;
       }
       case 'rcv': {
         const j = this.RCV.findIndex((l, i) => s.rcvGot[i] < l.exp);
-        if (j >= 0 && code === this.RCV[j].sku) { this.fb(true); const g = [...s.rcvGot]; g[j]++; this.setState({ rcvGot: g }); }
+        if (j >= 0 && code === this.RCV[j].sku) { this.fb(true); const g = [...s.rcvGot]; g[j]++; this.setState({ rcvGot: g }); this.enqueue('RCV +1 ' + code); }
         else this.err(j >= 0 ? 'Λάθος barcode — αναμένεται ' + this.RCV[j].sku : 'Όλες οι γραμμές πλήρεις');
         return;
       }
@@ -497,7 +521,7 @@ class Component extends DCLogic {
       }
       case 'pack': {
         const j = this.PACK.findIndex((l, i) => s.packGot[i] < l.qty);
-        if (j >= 0 && code === this.PACK[j].sku) { this.fb(true); const g = [...s.packGot]; g[j]++; this.setState({ packGot: g }); }
+        if (j >= 0 && code === this.PACK[j].sku) { this.fb(true); const g = [...s.packGot]; g[j]++; this.setState({ packGot: g }); this.enqueue('PACK +1 ' + code); }
         else this.err(j >= 0 ? 'Λάθος barcode — αναμένεται ' + this.PACK[j].sku : 'Το κιβώτιο είναι πλήρες');
         return;
       }
@@ -530,12 +554,14 @@ class Component extends DCLogic {
       if (!this.isLoc(code)) { this.err('Σάρωσε θέση προορισμού'); return; }
       if (code === f.from) { this.err('Ίδια με τη θέση προέλευσης'); return; }
       this.fb(true);
+      this.enqueue(key.toUpperCase() + ' ×' + f.qty + ' ' + f.sku + ' ' + f.from + '→' + code);
       this.showToast(doneMsg + ': ×' + f.qty + ' ' + f.sku + ' · ' + f.from + ' → ' + code, 2400);
       this.setState({ [key]: { phase: 'item', sku: null, qty: 0, from: null } });
     }
   }
   pickItem() {
     const s = this.state, L = this.PICK[s.pick.i], got = s.pick.got + 1, units = s.pick.units + 1;
+    this.enqueue('PICK ' + L.sku);
     if (got < L.qty) { this.setState({ pick: { ...s.pick, got, units } }); return; }
     if (s.pick.i + 1 >= this.PICK.length) { this.setState({ pick: { ...s.pick, got, units }, screen: 'pickdone', donePick: true }); return; }
     this.setState({ pick: { i: s.pick.i + 1, got: 0, units } });
@@ -543,6 +569,7 @@ class Component extends DCLogic {
   }
   putNext(overrideLoc) {
     const s = this.state, T = this.PUT[s.put.i];
+    this.enqueue('PUT ' + T.sku + ' → ' + (overrideLoc || T.loc));
     if (overrideLoc) this.showToast('Τοποθετήθηκε στη ' + overrideLoc + ' (αλλαγή πρότασης ' + T.loc + ')', 2200);
     else this.showToast('Τοποθετήθηκε στη ' + T.loc, 1300);
     if (s.put.i + 1 >= this.PUT.length) { this.finishFlow('donePut', 'Το put-away ολοκληρώθηκε'); return; }
@@ -560,6 +587,7 @@ class Component extends DCLogic {
   }
   cntNext() {
     const s = this.state;
+    this.enqueue('INV ' + this.CNT[s.cnt.i].loc + ' = ' + (s.cnt.qty || s.cnt.counted || 0));
     if (s.cnt.i + 1 >= this.CNT.length) { this.finishFlow('doneCnt', 'Η απογραφή ολοκληρώθηκε'); return; }
     this.setState({ cnt: { i: s.cnt.i + 1, phase: 'loc', qty: '' } });
     this.showToast('Καταχωρήθηκε — επόμενη θέση', 1300);
@@ -655,6 +683,12 @@ class Component extends DCLogic {
       pinDots: [0, 1, 2, 3].map(i => ({ bg: i < s.pin.length ? '#ed872d' : '#eceef2' })),
       keys, modules, totalTasks,
       flashOk: s.flashOk, flashErr: s.flashErr, hasToast: !!s.toast, toastText: s.toast,
+      isOffline: !this.isOnline(),
+      offlineText: s.queue.length ? 'Χωρίς σύνδεση — ' + s.queue.length + ' κινήσεις σε αναμονή' : 'Χωρίς σύνδεση — οι κινήσεις αποθηκεύονται τοπικά',
+      connDot: this.isOnline() ? '#fff' : '#ffce8a',
+      connText: this.isOnline() ? 'Online · RF-05' : 'Offline · ' + s.queue.length + ' σε αναμονή',
+      toggleOffline: () => { const off = !this.state.simOff; this.setState({ simOff: off }); if (!off) this.later(() => this.drain(), 700); },
+      offlineBtnText: s.simOff ? 'Επαναφορά σύνδεσης' : 'Προσομοίωση offline',
       camFab: mob && !s.cam && s.screen !== 'login',
       camOpen: s.cam,
       openCam: () => this.openCam(),
