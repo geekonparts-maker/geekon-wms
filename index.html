@@ -481,7 +481,7 @@ class Component extends DCLogic {
       const ac = this.ac = this.ac || new (window.AudioContext || window.webkitAudioContext)();
       const t = ac.currentTime;
       const mk = (f, t0, d, type, gv) => { const o = ac.createOscillator(), g = ac.createGain(); o.type = type; o.frequency.value = f; g.gain.setValueAtTime(gv || .18, t + t0); g.gain.exponentialRampToValueAtTime(.001, t + t0 + d); o.connect(g); g.connect(ac.destination); o.start(t + t0); o.stop(t + t0 + d); };
-      if (ok) { mk(1046, 0, .08, 'sine'); mk(1568, .09, .1, 'sine'); } else { mk(150, 0, .3, 'square', .5); mk(110, .32, .35, 'square', .55); }
+      if (ok) { mk(2730, 0, .12, 'square', .35); } else { mk(310, 0, .45, 'square', .55); }
     } catch (e) { }
   }
   fb(ok) {
