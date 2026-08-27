@@ -16,6 +16,7 @@ import streamlit as st
 from PIL import Image
 
 from annotator import render_annotated
+from bg_removal import BgRemovalError, remove_background_local
 from gemini_client import CLEANUP_PROMPT, DEFAULT_MODEL, MODELS, GeminiError, edit_image
 
 try:
@@ -105,14 +106,19 @@ with col_b:
     st.subheader("Τρέχουσα")
     st.image(ss.current, width="stretch")
 
-with st.expander("✏️ Οδηγία καθαρίσματος (μπορείς να την προσαρμόσεις)"):
-    cleanup_prompt = st.text_area("Prompt", value=CLEANUP_PROMPT, height=140,
-                                  label_visibility="collapsed")
-
 b1, b2, b3 = st.columns([2, 1, 1])
 with b1:
-    if st.button("🧽 Λευκό φόντο & καθάρισμα (AI)", type="primary", width="stretch"):
-        run_ai(cleanup_prompt, "Επεξεργασία με Nano Banana…")
+    if st.button("✂️ Λευκό φόντο ΧΩΡΙΣ AI — δεν πειράζει το προϊόν",
+                 type="primary", width="stretch"):
+        try:
+            with st.spinner("Τοπική αποκοπή φόντου… (την 1η φορά κατεβαίνει το μοντέλο ~176MB)"):
+                result = remove_background_local(ss.current)
+            push_history(ss.current)
+            ss.current = result
+            ss.final = None
+            st.rerun()
+        except BgRemovalError as e:
+            st.error(f"⚠️ {e}")
 with b2:
     if st.button("↩️ Αναίρεση", disabled=not ss.history, width="stretch"):
         ss.current = ss.history.pop()
@@ -125,15 +131,27 @@ with b3:
         ss.final = None
         st.rerun()
 
-extra = st.text_input("💬 Extra εντολή προς το AI (π.χ. «αφαίρεσε το καλώδιο», «ίσιωσε το προϊόν»)")
-if st.button("Εφαρμογή εντολής", disabled=not extra.strip()):
-    run_ai(
-        extra.strip() + " Do not alter the product itself in any other way; "
-        "keep its exact shape, proportions, colors and labels unchanged.",
-        "Εφαρμογή εντολής…",
-    )
+st.caption("✅ Η τοπική αποκοπή αφαιρεί μόνο το φόντο — τα pixels του προϊόντος μένουν ακριβώς όπως στη φωτογραφία σου. Το βήμα των διαστάσεων επίσης δεν αγγίζει ποτέ το προϊόν.")
 
-st.caption("⚖️ Χρησιμοποίησε αφαίρεση υδατογραφήματος μόνο σε φωτογραφίες που έχεις δικαίωμα χρήσης (δικές σου ή από προμηθευτή με άδεια).")
+with st.expander("🤖 AI εργαλεία (Nano Banana) — μόνο για δύσκολες περιπτώσεις"):
+    st.warning(
+        "Το γενετικό AI **ξαναδημιουργεί ολόκληρη την εικόνα** — μικρολεπτομέρειες "
+        "του προϊόντος (γράμματα ετικέτας, pins, βίδες) μπορεί να αλλοιωθούν. "
+        "Χρησιμοποίησέ το μόνο όταν χρειάζεται (π.χ. υδατογράφημα) και έλεγξε "
+        "προσεκτικά το αποτέλεσμα στη σύγκριση Αρχική/Τρέχουσα."
+    )
+    cleanup_prompt = st.text_area("Οδηγία καθαρίσματος", value=CLEANUP_PROMPT, height=140)
+    if st.button("🧽 Λευκό φόντο & καθάρισμα (AI)"):
+        run_ai(cleanup_prompt, "Επεξεργασία με Nano Banana…")
+
+    extra = st.text_input("💬 Extra εντολή προς το AI (π.χ. «αφαίρεσε το καλώδιο», «σβήσε το υδατογράφημα»)")
+    if st.button("Εφαρμογή εντολής", disabled=not extra.strip()):
+        run_ai(
+            extra.strip() + " Do not alter the product itself in any other way; "
+            "keep its exact shape, proportions, colors and labels unchanged.",
+            "Εφαρμογή εντολής…",
+        )
+    st.caption("⚖️ Αφαίρεση υδατογραφήματος μόνο σε φωτογραφίες που έχεις δικαίωμα χρήσης (δικές σου ή από προμηθευτή με άδεια).")
 
 # ---------------------------------------------------------------- 3. Dimensions
 st.header("3️⃣ Διαστάσεις & τελική εικόνα")
