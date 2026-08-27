@@ -51,53 +51,46 @@ def _draw_centered_text(draw, cx, cy, text, font, fill):
     draw.text((cx - w / 2, cy - h / 2), text, font=font, fill=fill, anchor=None)
 
 
-def _label_pill(draw, cx, cy, text, font, fill, pad_x, pad_y, pill_alpha=235):
-    """Κείμενο με λευκό στρογγυλεμένο φόντο, ώστε να διαβάζεται πάνω σε φωτογραφία."""
+def _round_line(draw, p1, p2, color, lw):
+    """Γραμμή με στρογγυλεμένες άκρες (round caps)."""
+    draw.line([p1, p2], fill=color, width=lw)
+    r = lw / 2
+    for (x, y) in (p1, p2):
+        draw.ellipse([x - r, y - r, x + r, y + r], fill=color)
+
+
+def _label_pill(draw, cx, cy, text, font, fg, bg, pad_x, pad_y):
+    """Ετικέτα σε γεμάτο στρογγυλό pill (μοντέρνο chip)."""
     w, h = _text_size(draw, text, font)
     x0, y0 = cx - w / 2 - pad_x, cy - h / 2 - pad_y
     x1, y1 = cx + w / 2 + pad_x, cy + h / 2 + pad_y
-    draw.rounded_rectangle([x0, y0, x1, y1], radius=(y1 - y0) / 2,
-                           fill=(255, 255, 255, pill_alpha))
-    _draw_centered_text(draw, cx, cy, text, font, fill)
+    draw.rounded_rectangle([x0, y0, x1, y1], radius=(y1 - y0) / 2, fill=bg)
+    _draw_centered_text(draw, cx, cy, text, font, fg)
 
 
-def _double_arrow(draw, p1, p2, label, font, color, lw, head_l, head_w,
-                  pill=False, pad_x=14, pad_y=8):
-    """Βέλος δύο κατευθύνσεων (οριζόντιο ή κατακόρυφο) με την ετικέτα σε κενό
-    στη μέση της γραμμής, όπως στα τεχνικά σχέδια."""
+def _double_arrow(draw, p1, p2, label, font, color, lw, head_l, head_w, **_kw):
+    """Μοντέρνο βέλος δύο κατευθύνσεων: λεπτή γραμμή με round caps, ανοιχτές
+    chevron αιχμές, και το νούμερο σε πορτοκαλί pill με λευκά γράμματα."""
     x1, y1 = p1
     x2, y2 = p2
     horizontal = abs(x2 - x1) >= abs(y2 - y1)
     cx, cy = (x1 + x2) / 2, (y1 + y2) / 2
-    tw, th = _text_size(draw, label, font)
 
+    _round_line(draw, p1, p2, color, lw)
     if horizontal:
-        gap = tw / 2 + pad_x + 10
-        # γραμμές αριστερά/δεξιά από την ετικέτα
-        if cx - gap > x1 + head_l:
-            draw.line([x1 + head_l, y1, cx - gap, y1], fill=color, width=lw)
-        if cx + gap < x2 - head_l:
-            draw.line([cx + gap, y2, x2 - head_l, y2], fill=color, width=lw)
-        # αιχμές
-        draw.polygon([(x1, y1), (x1 + head_l, y1 - head_w / 2),
-                      (x1 + head_l, y1 + head_w / 2)], fill=color)
-        draw.polygon([(x2, y2), (x2 - head_l, y2 - head_w / 2),
-                      (x2 - head_l, y2 + head_w / 2)], fill=color)
+        # chevrons: δύο γραμμές από κάθε άκρη προς τα μέσα
+        _round_line(draw, (x1, y1), (x1 + head_l, y1 - head_w / 2), color, lw)
+        _round_line(draw, (x1, y1), (x1 + head_l, y1 + head_w / 2), color, lw)
+        _round_line(draw, (x2, y2), (x2 - head_l, y2 - head_w / 2), color, lw)
+        _round_line(draw, (x2, y2), (x2 - head_l, y2 + head_w / 2), color, lw)
     else:
-        gap = th / 2 + pad_y + 10
-        if cy - gap > y1 + head_l:
-            draw.line([x1, y1 + head_l, x1, cy - gap], fill=color, width=lw)
-        if cy + gap < y2 - head_l:
-            draw.line([x2, cy + gap, x2, y2 - head_l], fill=color, width=lw)
-        draw.polygon([(x1, y1), (x1 - head_w / 2, y1 + head_l),
-                      (x1 + head_w / 2, y1 + head_l)], fill=color)
-        draw.polygon([(x2, y2), (x2 - head_w / 2, y2 - head_l),
-                      (x2 + head_w / 2, y2 - head_l)], fill=color)
+        _round_line(draw, (x1, y1), (x1 - head_w / 2, y1 + head_l), color, lw)
+        _round_line(draw, (x1, y1), (x1 + head_w / 2, y1 + head_l), color, lw)
+        _round_line(draw, (x2, y2), (x2 - head_w / 2, y2 - head_l), color, lw)
+        _round_line(draw, (x2, y2), (x2 + head_w / 2, y2 - head_l), color, lw)
 
-    if pill:
-        _label_pill(draw, cx, cy, label, font, color, pad_x, pad_y)
-    else:
-        _draw_centered_text(draw, cx, cy, label, font, color)
+    _label_pill(draw, cx, cy, label, font, WHITE + (255,), color,
+                pad_x=head_l * 0.75, pad_y=head_l * 0.42)
 
 
 def render_annotated(
@@ -123,12 +116,12 @@ def render_annotated(
 
     f_title = _load_font("extrabold", round(60 * s))
     f_sub = _load_font("medium", round(30 * s))
-    f_dim = _load_font("bold", round(46 * s))
+    f_dim = _load_font("bold", round(38 * s))
     f_footer = _load_font("bold", round(42 * s))
     f_chip = _load_font("bold", round(32 * s))
 
-    lw = max(3, round(7 * s))
-    head_l, head_w = round(30 * s), round(24 * s)
+    lw = max(2, round(5 * s))
+    head_l, head_w = round(28 * s), round(26 * s)
 
     base = Image.new("RGB", (S, S), WHITE)
 
@@ -185,8 +178,8 @@ def render_annotated(
         ins_x, ins_y = inset_pct * nw, inset_pct * nh
         ax0, ay0 = px + ins_x, py + ins_y
         ax1, ay1 = px + nw - ins_x, py + nh - ins_y
-        draw.rounded_rectangle([ax0, ay0, ax1, ay1], radius=36 * s,
-                               outline=ORANGE + (255,), width=max(4, round(10 * s)))
+        draw.rounded_rectangle([ax0, ay0, ax1, ay1], radius=44 * s,
+                               outline=ORANGE + (235,), width=max(3, round(7 * s)))
         pad = 0.055 * min(ax1 - ax0, ay1 - ay0) + head_l
         if active_h:
             x = ax0 + 0.24 * (ax1 - ax0)
