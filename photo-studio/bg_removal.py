@@ -64,7 +64,18 @@ def _mask_border_method(arr: np.ndarray, bg: np.ndarray, thr: int = 18) -> np.nd
     ]))
     edge_labels = edge_labels[edge_labels != 0]
     background = np.isin(labels, edge_labels)
-    return np.where(background, 0, 255).astype(np.uint8)
+    product = ~background
+
+    # Πέτα μικρά «νησάκια» μακριά από το προϊόν (π.χ. υδατογραφήματα στο
+    # φόντο): κρατάμε μόνο συστατικά με αξιόλογο μέγεθος σε σχέση με το
+    # μεγαλύτερο (το ίδιο το προϊόν).
+    comp, n = ndimage.label(product)
+    if n > 1:
+        sizes = ndimage.sum_labels(np.ones_like(comp), comp, index=np.arange(1, n + 1))
+        keep = np.flatnonzero(sizes >= 0.05 * sizes.max()) + 1
+        product = np.isin(comp, keep)
+
+    return np.where(product, 255, 0).astype(np.uint8)
 
 
 def _mask_model_method(src: Image.Image) -> np.ndarray:
