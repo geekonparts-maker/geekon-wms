@@ -1,9 +1,0 @@
-streamlit>=1.49
-streamlit-image-coordinates>=0.2
-google-genai>=1.16
-pillow>=10.0
-python-dotenv>=1.0
-numpy>=1.26
-# Τοπική αποκοπή φόντου (χωρίς γενετικό AI) — 1η εκτέλεση κατεβάζει μοντέλο ~176MB
-rembg>=2.0.61
-onnxruntime>=1.17
