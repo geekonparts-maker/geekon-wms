@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GeekOn WMS · Διαχειριστικό</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Commissioner:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;700&display=swap">
+<style>
+/* [AD] 16/11/2026: Διαχειριστικό GeekOn WMS (σκελετός v1).
+   Web app από τον server (όπως το PDA) — ΟΧΙ εγκατάσταση, ΟΧΙ "πάτα update για να μπεις": οι ενημερώσεις
+   είναι αυτόματες. Τα δεδομένα εδώ είναι ΔΕΙΓΜΑ στον browser· η βάση GeekOnWMS + ο server μπαίνουν από κάτω μετά. */
+:root{
+  --or:#ED872D; --or-d:#C96F1E; --or-t:#FDF1E6;
+  --fg:#17191E; --bg:#F3F1EE; --card:#FFFFFF; --card2:#FAF9F7; --sec:#6B7280; --mut:#9AA0AB; --bd:#E4E2DD;
+  --er:#C03D3D; --er-t:#FDECEC; --ok:#17803F; --ok-t:#E6F7EE; --warn:#B4690E; --warn-t:#FBF0DF;
+  --nav:#1C1F26; --nav-fg:#E7E9EE; --nav-sec:#9AA2B0; --nav-on:#2A2F3A;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --sans:Commissioner,system-ui,"Segoe UI",Arial,sans-serif;
+  --sh:0 1px 2px rgba(20,22,28,.06),0 2px 10px rgba(20,22,28,.05);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --fg:#ECEEF2; --bg:#0F1115; --card:#1A1D23; --card2:#15181D; --sec:#A3AAB6; --mut:#7D8593; --bd:#2A2F38;
+  --er:#F07A7A; --er-t:#3A1F22; --ok:#5CCB8A; --ok-t:#13301F; --warn:#E0A24A; --warn-t:#332512;
+  --nav:#0B0D11; --nav-fg:#E7E9EE; --nav-sec:#8A93A2; --nav-on:#1B1F27; --or-t:#3A2A1C; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --fg:#ECEEF2; --bg:#0F1115; --card:#1A1D23; --card2:#15181D; --sec:#A3AAB6; --mut:#7D8593; --bd:#2A2F38;
+  --er:#F07A7A; --er-t:#3A1F22; --ok:#5CCB8A; --ok-t:#13301F; --warn:#E0A24A; --warn-t:#332512;
+  --nav:#0B0D11; --nav-fg:#E7E9EE; --nav-sec:#8A93A2; --nav-on:#1B1F27; --or-t:#3A2A1C; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:14px;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+a{color:inherit}
+.mono{font-family:var(--mono)}
+
+/* ---------- Login ---------- */
+.login{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:20px;
+  background:radial-gradient(1200px 600px at 70% -10%,rgba(237,135,45,.18),transparent 60%),var(--bg)}
+.login form{width:min(380px,100%);background:var(--card);border:1px solid var(--bd);border-radius:18px;box-shadow:var(--sh);
+  padding:26px 22px;display:flex;flex-direction:column;gap:14px}
+.login .logo{display:flex;align-items:center;gap:11px;margin-bottom:2px}
+.login .logo b{background:var(--or);color:#fff;border-radius:11px;padding:7px 10px;font-weight:800;letter-spacing:.04em}
+.login .logo h1{margin:0;font-size:19px;font-weight:800}
+.login .logo span{font-size:12px;color:var(--sec);display:block;font-weight:600}
+.f{display:flex;flex-direction:column;gap:5px}
+.f label{font-size:12px;color:var(--sec);font-weight:600}
+.f input,.f select{border:1px solid var(--bd);background:var(--card2);border-radius:10px;padding:10px 11px;font-size:15px;width:100%}
+.f input:focus,.f select:focus{outline:2px solid var(--or);outline-offset:1px;border-color:var(--or)}
+.btn{border:1px solid var(--bd);background:var(--card);border-radius:10px;padding:9px 13px;cursor:pointer;font-weight:600;display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.btn:hover{border-color:var(--mut)}
+.btn.pri{background:var(--or);border-color:var(--or);color:#fff}
+.btn.pri:hover{background:var(--or-d);border-color:var(--or-d)}
+.btn.sm{padding:6px 10px;font-size:13px;border-radius:9px}
+.btn.gho{background:transparent;border-color:transparent}
+.btn.dng{color:var(--er);border-color:var(--er)}
+.btn:focus-visible{outline:2px solid var(--or);outline-offset:2px}
+.login .err{color:var(--er);font-size:13px;font-weight:600;min-height:17px}
+.login .note{font-size:11.5px;color:var(--mut);line-height:1.5;text-align:center}
+
+/* ---------- Shell ---------- */
+.app{display:grid;grid-template-columns:230px 1fr;grid-template-rows:100%;height:100%}
+.side{background:var(--nav);color:var(--nav-fg);display:flex;flex-direction:column;min-height:0;
+  padding:14px 12px;gap:3px;padding-left:max(12px,env(safe-area-inset-left))}
+.side .brand{display:flex;align-items:center;gap:10px;padding:6px 8px 14px}
+.side .brand b{background:var(--or);color:#fff;border-radius:10px;padding:6px 9px;font-weight:800;letter-spacing:.03em;font-size:13px}
+.side .brand h1{margin:0;font-size:15px;font-weight:800;line-height:1.1}
+.side .brand small{color:var(--nav-sec);font-size:11px;font-weight:600}
+.nav{display:flex;flex-direction:column;gap:2px;overflow-y:auto;min-height:0;flex:1}
+.nav button{all:unset;display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;cursor:pointer;color:var(--nav-fg);font-weight:600;font-size:13.5px}
+.nav button .ic{width:20px;text-align:center;opacity:.85;font-size:15px}
+.nav button:hover{background:var(--nav-on)}
+.nav button.on{background:var(--or);color:#fff}
+.nav .sep{height:1px;background:rgba(255,255,255,.08);margin:8px 4px}
+.nav .cap{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--nav-sec);padding:4px 10px;font-weight:700}
+.side .foot{border-top:1px solid rgba(255,255,255,.08);padding-top:10px;margin-top:6px;display:flex;align-items:center;gap:9px}
+.side .foot .av{width:30px;height:30px;border-radius:50%;background:var(--or);color:#fff;display:grid;place-items:center;font-weight:800;font-size:13px}
+.side .foot .who{flex:1;min-width:0}
+.side .foot .who b{display:block;font-size:13px;line-height:1.1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.side .foot .who span{font-size:11px;color:var(--nav-sec)}
+
+.main{min-width:0;min-height:0;overflow-y:auto;display:flex;flex-direction:column}
+.top{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--bd);padding:12px 20px;display:flex;align-items:center;gap:12px}
+.top h2{margin:0;font-size:17px;font-weight:800;flex:1}
+.top .sub{font-size:12px;color:var(--sec);font-weight:500;margin-top:1px}
+.wrap{padding:20px;max-width:1180px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+
+.banner{background:var(--warn-t);color:var(--warn);border:1px solid color-mix(in srgb,var(--warn) 30%,transparent);
+  border-radius:12px;padding:10px 13px;font-size:12.5px;font-weight:600;line-height:1.45;display:flex;gap:9px;align-items:flex-start}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;box-shadow:var(--sh)}
+.card .hd{padding:13px 15px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px}
+.card .hd h3{margin:0;font-size:14px;font-weight:700;flex:1}
+.card .bd{padding:15px}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.tile{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;box-shadow:var(--sh);display:flex;flex-direction:column;gap:3px}
+.tile .k{font-size:12px;color:var(--sec);font-weight:600;display:flex;align-items:center;gap:6px}
+.tile .v{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.tile .d{font-size:11.5px;color:var(--mut)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--bd);white-space:nowrap}
+th{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);font-weight:700;position:sticky;top:0;background:var(--card)}
+tbody tr:hover{background:var(--card2)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:999px;font-size:11.5px;font-weight:700;line-height:1}
+.tag.ok{background:var(--ok-t);color:var(--ok)}
+.tag.er{background:var(--er-t);color:var(--er)}
+.tag.wa{background:var(--warn-t);color:var(--warn)}
+.tag.mu{background:var(--card2);color:var(--sec);border:1px solid var(--bd)}
+.tbl-wrap{overflow:auto;max-height:440px;border-radius:10px;border:1px solid var(--bd)}
+.tbl-wrap table th{box-shadow:inset 0 -1px 0 var(--bd)}
+.search{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.search input{border:1px solid var(--bd);background:var(--card2);border-radius:10px;padding:8px 11px;min-width:200px;flex:1}
+.search input:focus{outline:2px solid var(--or);outline-offset:1px}
+.pill{display:inline-flex;gap:6px;align-items:center;background:var(--card2);border:1px solid var(--bd);border-radius:999px;padding:5px 11px;font-size:12px;font-weight:600}
+.frame{width:100%;height:calc(100vh - 150px);min-height:460px;border:1px solid var(--bd);border-radius:14px;background:var(--card);overflow:hidden}
+.frame iframe{width:100%;height:100%;border:0;display:block}
+.empty{color:var(--mut);font-size:13px;padding:24px;text-align:center}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:7px 16px;font-size:13px}
+.kv dt{color:var(--sec);font-weight:600}
+.kv dd{margin:0;font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+.set-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--bd)}
+.set-row:last-child{border-bottom:0}
+.set-row .lbl{flex:1}
+.set-row .lbl b{display:block;font-size:13.5px}
+.set-row .lbl span{font-size:12px;color:var(--sec)}
+.set-row input{width:96px;border:1px solid var(--bd);background:var(--card2);border-radius:9px;padding:7px 9px;text-align:right}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--nav);color:#fff;padding:10px 16px;border-radius:11px;font-size:13px;font-weight:600;box-shadow:var(--sh);z-index:60;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-2px)}
+.hamb{display:none}
+@media (max-width:860px){
+  .app{grid-template-columns:1fr}
+  .side{position:fixed;inset:0 auto 0 0;width:250px;z-index:40;transform:translateX(-100%);transition:transform .22s}
+  .side.open{transform:none;box-shadow:0 0 0 100vmax rgba(0,0,0,.4)}
+  .hamb{display:inline-flex}
+  .frame{height:calc(100vh - 180px)}
+  .tiles{grid-template-columns:1fr 1fr}
+  .grid2{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<!-- ================= LOGIN ================= -->
+<div class="login" id="login">
+  <form id="loginForm" autocomplete="off">
+    <div class="logo"><b>WMS</b><div><h1>GeekOn WMS</h1><span>Διαχειριστικό αποθήκης</span></div></div>
+    <div class="f"><label for="li_co">Εγκατάσταση / Εταιρεία</label>
+      <select id="li_co"><option>GeekOn E.E.</option></select></div>
+    <div class="f"><label for="li_wh">Αποθήκη</label>
+      <select id="li_wh"><option>Κεντρική (1000)</option></select></div>
+    <div class="f"><label for="li_user">Όνομα χρήστη</label>
+      <input id="li_user" value="akis" spellcheck="false"></div>
+    <div class="f"><label for="li_pin">Κωδικός</label>
+      <input id="li_pin" type="password" placeholder="δείγμα: 1234" value=""></div>
+    <div class="err" id="li_err"></div>
+    <button class="btn pri" type="submit" style="justify-content:center;padding:11px">Είσοδος</button>
+    <div class="note">Δείγμα χωρίς πραγματικό κωδικό. Η είσοδος με χρήστες, ρόλους και Authenticator
+      μπαίνει μαζί με τον server και τη βάση GeekOnWMS.</div>
+  </form>
+</div>
+
+<!-- ================= SHELL ================= -->
+<div class="app" id="app" hidden>
+  <aside class="side" id="side">
+    <div class="brand"><b>WMS</b><div><h1>GeekOn</h1><small>Αποθήκη</small></div></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="foot">
+      <div class="av" id="meAv">Α</div>
+      <div class="who"><b id="meName">Άκης</b><span id="meRole">Διαχειριστής</span></div>
+      <button class="btn gho sm" id="logout" title="Έξοδος">⎋</button>
+    </div>
+  </aside>
+  <main class="main">
+    <header class="top">
+      <button class="btn gho hamb" id="hamb" aria-label="Μενού">☰</button>
+      <div style="flex:1"><h2 id="pgTitle">Πίνακας</h2><div class="sub" id="pgSub"></div></div>
+      <span class="pill" id="syncPill" title="Τελευταίος συγχρονισμός με SoftOne">● SoftOne</span>
+      <button class="btn gho sm" id="theme" title="Θέμα">◐</button>
+    </header>
+    <div class="wrap" id="view"></div>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// [AD] 16/11/2026 — ΔΕΙΓΜΑ δεδομένων στον browser. Η βάση GeekOnWMS + server API μπαίνουν από κάτω μετά.
+"use strict";
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const nf=n=>n.toLocaleString("el-GR");
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove("show"),2200);}
+
+/* ---------- ΔΕΙΓΜΑ δεδομένων ---------- */
+const DEMO={
+  floors:[{code:"IS",name:"Ισόγειο",use:"fast picking",racks:17,bins:812},
+          {code:"YP",name:"Υπόγειο",use:"slow picking",racks:0,bins:0},
+          {code:"O1",name:"1ος όροφος",use:"ακίνητα",racks:0,bins:0}],
+  items:[
+    {sku:"LCD-IPH-11-BLK-INC",name:"Οθόνη iPhone 11 Incell μαύρη",loc:"IS-A02-D03-R01-P04",qty:34,speed:"fast"},
+    {sku:"LCD-SAM-A515-OLED",name:"Οθόνη Samsung A51 OLED service pack",loc:"IS-A01-D02-R02-P07",qty:8,speed:"fast"},
+    {sku:"BAT-IPH-12-APLUS",name:"Μπαταρία iPhone 12 A+",loc:"IS-A03-D01-R01-P11",qty:52,speed:"fast"},
+    {sku:"BZL-XIA-RN10-BLU",name:"Τζαμάκι Xiaomi Redmi Note 10 μπλε",loc:"YP-A01-D04-R03-P02",qty:120,speed:"slow"},
+    {sku:"FLX-OPP-A54-CHG",name:"Καλωδιοταινία φόρτισης Oppo A54",loc:"YP-A02-D01-R01-P09",qty:17,speed:"slow"},
+    {sku:"CAM-IPH-13-REAR",name:"Κάμερα πίσω iPhone 13",loc:"O1-A01-D01-R02-P01",qty:3,speed:"static"},
+    {sku:"SPK-ONP-9-BUZZER",name:"Ηχείο buzzer OnePlus 9",loc:"O1-A01-D02-R01-P05",qty:6,speed:"static"}],
+  replen:[
+    {sku:"LCD-SAM-A515-OLED",from:"YP-A05-D02-R04-P01",to:"IS-A01-D02-R02-P07",qty:10,why:"κάτω από ελάχιστο (8/10)"},
+    {sku:"BAT-IPH-12-APLUS",from:"YP-A05-D03-R01-P12",to:"IS-A03-D01-R01-P11",qty:20,why:"κάτω από ελάχιστο (52/60)"},
+    {sku:"TMP-IPH-14-GLASS",from:"YP-A06-D01-R02-P03",to:"IS-A04-D02-R01-P02",qty:40,why:"άδειασε η θέση picking"}],
+  moveUp:[
+    {sku:"FLX-SAM-S22-SUB",name:"Sub-board Samsung S22",now:"YP-A02-D03",sold:"9 τεμ / 7 μέρες",to:"IS (ελεύθερη A04-D03-R02-P06)"},
+    {sku:"LCD-XIA-POCOX3",name:"Οθόνη Poco X3",now:"O1-A02-D01",sold:"4 τεμ / 7 μέρες",to:"IS (ελεύθερη A02-D04-R01-P08)"}],
+  moves:[
+    {t:"16/11 16:40",u:"akis",typ:"PICK",sku:"BAT-IPH-12-APLUS",q:-2,from:"IS-A03-D01-R01-P11",to:"—",doc:"Παραγγ. 24581"},
+    {t:"16/11 16:33",u:"giannis",typ:"RPL",sku:"LCD-IPH-11-BLK-INC",q:10,from:"YP-A05-D02-R03-P04",to:"IS-A02-D03-R01-P04",doc:"RPL πρωινό"},
+    {t:"16/11 15:58",u:"akis",typ:"RCV",sku:"CAM-IPH-13-REAR",q:5,from:"—",to:"RCV (παραλαβή)",doc:"ΠΣΚ0003421"},
+    {t:"16/11 15:10",u:"maria",typ:"MOV",sku:"BZL-XIA-RN10-BLU",q:60,from:"RCV",to:"YP-A01-D04-R03-P02",doc:"Τοποθέτηση"},
+    {t:"16/11 14:02",u:"akis",typ:"INV",sku:"SPK-ONP-9-BUZZER",q:-1,from:"O1-A01-D02-R01-P05",to:"—",doc:"Απογραφή (διαφορά)"}],
+  users:[
+    {u:"akis",name:"Άκης",role:"Διαχειριστής",dev:"PC · PDA",last:"τώρα"},
+    {u:"giannis",name:"Γιάννης",role:"Υπεύθυνος αποθήκης",dev:"PC · PDA-1",last:"16/11 16:33"},
+    {u:"maria",name:"Μαρία",role:"Picker",dev:"PDA-2",last:"16/11 15:10"}],
+  settings:[
+    {k:"replen.time",label:"Ώρα λίστας αναπλήρωσης",val:"07:00",note:"Κάθε πρωί βγαίνει η λίστα για το fast picking"},
+    {k:"pick.minDays",label:"Ελάχιστο θέσης picking (μέρες πωλήσεων)",val:"2",note:"Κάτω από αυτό → αναπλήρωση"},
+    {k:"pick.maxDays",label:"Μέγιστο θέσης picking (μέρες πωλήσεων)",val:"7",note:"Πόσο γεμίζει η θέση"},
+    {k:"slow.days",label:"Μέρες χωρίς κίνηση για «κατέβασμα»",val:"60",note:"Είδος στο IS χωρίς πώληση → πρόταση για YP/O1"}],
+  zones:[
+    {z:"MAIN",name:"Κύρια (ράφια)",s1:"ναι",sell:"ναι"},
+    {z:"RCV",name:"Παραλαβή / προς τοποθέτηση",s1:"ναι",sell:"όχι"},
+    {z:"FAULTY",name:"Faulty",s1:"ναι",sell:"όχι"},
+    {z:"SERVICE",name:"Service / έλεγχος",s1:"ναι",sell:"όχι"},
+    {z:"RET",name:"Επιστροφές πελατών",s1:"ναι",sell:"όχι"},
+    {z:"RTS",name:"Προς επιστροφή σε προμηθευτή",s1:"ναι",sell:"όχι"}]
+};
+const speedTag=s=>({fast:'<span class="tag ok">fast</span>',slow:'<span class="tag wa">slow</span>',static:'<span class="tag mu">ακίνητο</span>'}[s]||"");
+
+/* ---------- Πλοήγηση ---------- */
+const PAGES=[
+  {id:"dash",ic:"▦",t:"Πίνακας",sub:"Σύνοψη αποθήκης και σημερινές εργασίες"},
+  {id:"wh3d",ic:"◳",t:"3D Αποθήκη",sub:"Όροφοι · Dexion · ράφια · θέσεις"},
+  {cap:"Απόθεμα"},
+  {id:"items",ic:"❒",t:"Είδη",sub:"Κωδικοί από το SoftOne (ανάγνωση)"},
+  {id:"locs",ic:"⌗",t:"Θέσεις",sub:"Κωδικοί θέσεων και ετικέτες"},
+  {id:"replen",ic:"⤒",t:"Αναπλήρωση",sub:"Τι να φέρουμε στο ισόγειο για fast picking"},
+  {cap:"Ιχνηλασιμότητα"},
+  {id:"moves",ic:"↹",t:"Κινήσεις",sub:"Κάθε κίνηση — δεν σβήνεται ποτέ"},
+  {cap:"Ρυθμίσεις"},
+  {id:"zones",ic:"▧",t:"Ζώνες",sub:"Εσωτερικές αποθήκες WMS"},
+  {id:"users",ic:"⚇",t:"Χρήστες",sub:"Ρόλοι και ιστορικό εισόδων"},
+  {id:"settings",ic:"⚙",t:"Παράμετροι",sub:"Κανόνες picking και αναπλήρωσης"}
+];
+function buildNav(){
+  $("#nav").innerHTML=PAGES.map(p=>p.cap?`<div class="cap">${esc(p.cap)}</div>`
+    :`<button data-pg="${p.id}"><span class="ic">${p.ic}</span>${esc(p.t)}</button>`).join("");
+  $$("#nav button").forEach(b=>b.onclick=()=>go(b.dataset.pg));
+}
+let cur=null;
+function go(id){
+  const p=PAGES.find(x=>x.id===id); if(!p)return;
+  cur=id;
+  $$("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.pg===id));
+  $("#pgTitle").textContent=p.t; $("#pgSub").textContent=p.sub;
+  $("#side").classList.remove("open");
+  VIEWS[id]();
+  $(".main").scrollTop=0;
+}
+
+/* ---------- Οθόνες ---------- */
+const demoBanner='<div class="banner">⚠ <div><b>Δείγμα (χωρίς βάση ακόμα).</b> Τα νούμερα εδώ είναι ενδεικτικά για να δούμε τη μορφή. Μόλις μπει η βάση GeekOnWMS και ο server, όλα θα έρχονται ζωντανά και οι ενημερώσεις θα γίνονται αυτόματα.</div></div>';
+const VIEWS={
+  dash(){
+    const totBins=DEMO.floors.reduce((a,f)=>a+f.bins,0), totRacks=DEMO.floors.reduce((a,f)=>a+f.racks,0);
+    $("#view").innerHTML=demoBanner+`
+      <div class="tiles">
+        <div class="tile"><div class="k">◳ Όροφοι</div><div class="v">${DEMO.floors.length}</div><div class="d">IS · YP · O1</div></div>
+        <div class="tile"><div class="k">▤ Dexion</div><div class="v">${totRacks}</div><div class="d">σε όλους τους ορόφους</div></div>
+        <div class="tile"><div class="k">⌗ Θέσεις</div><div class="v">${nf(totBins)}</div><div class="d">με ετικέτα</div></div>
+        <div class="tile"><div class="k">⤒ Αναπλήρωση σήμερα</div><div class="v">${DEMO.replen.length}</div><div class="d">εργασίες για το ισόγειο</div></div>
+      </div>
+      <div class="grid2">
+        <div class="card"><div class="hd"><h3>Αναπλήρωση fast picking — σήμερα 07:00</h3><button class="btn sm" onclick="go('replen')">Όλα</button></div>
+          <div class="bd" style="padding:0"><div class="tbl-wrap" style="border:0">
+          <table><thead><tr><th>Είδος</th><th>Από</th><th>Προς</th><th class="num">Τεμ.</th></tr></thead><tbody>
+          ${DEMO.replen.map(r=>`<tr><td class="mono">${esc(r.sku)}</td><td class="mono" style="color:var(--sec)">${esc(r.from)}</td><td class="mono">${esc(r.to)}</td><td class="num">${r.qty}</td></tr>`).join("")}
+          </tbody></table></div></div></div>
+        <div class="card"><div class="hd"><h3>Κινούμενα που είναι κάτω → φέρ' τα στο IS</h3></div>
+          <div class="bd" style="padding:0"><div class="tbl-wrap" style="border:0">
+          <table><thead><tr><th>Είδος</th><th>Τώρα</th><th>Πουλήσεις</th></tr></thead><tbody>
+          ${DEMO.moveUp.map(r=>`<tr><td><div class="mono">${esc(r.sku)}</div><div style="font-size:11.5px;color:var(--sec)">${esc(r.name)}</div></td><td class="mono" style="color:var(--sec)">${esc(r.now)}</td><td><span class="tag ok">${esc(r.sold)}</span></td></tr>`).join("")}
+          </tbody></table></div></div></div>
+      </div>
+      <div class="card"><div class="hd"><h3>Τελευταίες κινήσεις</h3><button class="btn sm" onclick="go('moves')">Όλες</button></div>
+        <div class="bd" style="padding:0"><div class="tbl-wrap" style="border:0">${movesTable(DEMO.moves.slice(0,5))}</div></div></div>`;
+  },
+  wh3d(){
+    $("#view").innerHTML=`<div class="banner" style="background:var(--or-t);color:var(--or-d);border-color:color-mix(in srgb,var(--or) 30%,transparent)">◳ <div>Η 3D αποθήκη. Βάζεις Dexion με κλικ όπου θες, κουμπώνουν στους τοίχους, και ορίζεις ράφια και θέσεις. Προς το παρόν αποθηκεύεται στον browser· μετά θα σώζεται στη βάση.</div></div>
+      <div class="frame"><iframe src="3d-apothiki.html" title="3D Αποθήκη" loading="lazy"></iframe></div>`;
+  },
+  items(){
+    const rows=DEMO.items;
+    $("#view").innerHTML=demoBanner+`
+      <div class="card"><div class="hd"><h3>Είδη</h3>
+        <div class="search"><input id="q" placeholder="Αναζήτηση SKU ή περιγραφή…" oninput="filterItems()"></div></div>
+        <div class="bd" style="padding:0"><div class="tbl-wrap" style="border:0" id="itemsTbl">${itemsTable(rows)}</div></div></div>
+      <div class="banner" style="background:var(--card2);color:var(--sec);border-color:var(--bd)">ℹ <div>Τα είδη ανοίγουν <b>μόνο στο SoftOne</b>. Ο server του WMS θα τα τραβάει αυτόματα κάθε 1-2 λεπτά (νέα/αλλαγμένα) μαζί με barcodes και κωδικούς προμηθευτών. Το WMS δεν γράφει ποτέ είδη στο SoftOne.</div></div>`;
+  },
+  locs(){
+    const rows=DEMO.items.map(i=>i.loc);
+    $("#view").innerHTML=demoBanner+`
+      <div class="card"><div class="hd"><h3>Θέσεις</h3><span class="pill">IS-A02-D03-R01-P12</span></div>
+        <div class="bd">
+        <div class="kv" style="margin-bottom:14px">
+          <dt>Μορφή κωδικού</dt><dd class="mono">Όροφος-Aδιάδρομος-Ddexion-Rράφι-Pθέση</dd>
+          <dt>R01</dt><dd>κάτω ράφι</dd><dt>P01</dt><dd>αριστερή θέση από μπροστά</dd>
+          <dt>Ετικέτα</dt><dd>Code 128 + μεγάλος κωδικός (Zebra)</dd></div>
+        <div class="empty">Οι θέσεις θα παράγονται αυτόματα από τα Dexion της 3D αποθήκης. Εδώ θα τις βλέπεις, θα τυπώνεις ετικέτες και θα βλέπεις τι έχει η καθεμία.</div>
+        </div></div>`;
+  },
+  replen(){
+    $("#view").innerHTML=demoBanner+`
+      <div class="card"><div class="hd"><h3>Αναπλήρωση fast picking</h3><span class="pill">σήμερα 07:00 · ${DEMO.replen.length} εργασίες</span></div>
+        <div class="bd" style="padding:0"><div class="tbl-wrap" style="border:0">
+        <table><thead><tr><th>Είδος</th><th>Από (απόθεμα)</th><th>Προς (picking)</th><th class="num">Τεμ.</th><th>Λόγος</th></tr></thead><tbody>
+        ${DEMO.replen.map(r=>`<tr><td class="mono">${esc(r.sku)}</td><td class="mono" style="color:var(--sec)">${esc(r.from)}</td><td class="mono">${esc(r.to)}</td><td class="num">${r.qty}</td><td style="white-space:normal;color:var(--sec)">${esc(r.why)}</td></tr>`).join("")}
+        </tbody></table></div></div></div>
+      <div class="banner" style="background:var(--card2);color:var(--sec);border-color:var(--bd)">ℹ <div>Η λίστα βγαίνει κάθε πρωί και ταξινομείται ανά όροφο/διάδρομο ώστε να γίνεται σε μία βόλτα. Αν μέσα στη μέρα αδειάσει θέση picking, μπαίνει αμέσως νέα εργασία. Θα εμφανίζεται και στο PDA (οθόνη RPL).</div></div>`;
+  },
+  moves(){
+    $("#view").innerHTML=`<div class="banner">🔒 <div><b>Ιχνηλασιμότητα.</b> Κάθε κίνηση γράφεται με ώρα, χρήστη, συσκευή και τι σκανάρισε. <b>Δεν αλλάζει και δεν σβήνεται ποτέ.</b> Λάθος; → αντίθετη κίνηση, φαίνονται και οι δύο.</div></div>
+      <div class="card"><div class="hd"><h3>Κινήσεις</h3><div class="search"><input id="q" placeholder="Αναζήτηση SKU, χρήστη, θέσης…" oninput="filterMoves()"></div></div>
+        <div class="bd" style="padding:0"><div class="tbl-wrap" style="border:0" id="movesTbl">${movesTable(DEMO.moves)}</div></div></div>`;
+  },
+  zones(){
+    $("#view").innerHTML=demoBanner+`
+      <div class="card"><div class="hd"><h3>Ζώνες / εσωτερικές αποθήκες</h3></div>
+        <div class="bd" style="padding:0"><div class="tbl-wrap" style="border:0">
+        <table><thead><tr><th>Κωδικός</th><th>Ζώνη</th><th>Μετράει στο SoftOne</th><th>Πουλιέται</th></tr></thead><tbody>
+        ${DEMO.zones.map(z=>`<tr><td class="mono">${esc(z.z)}</td><td>${esc(z.name)}</td><td>${z.s1==="ναι"?'<span class="tag ok">ναι</span>':'<span class="tag er">όχι</span>'}</td><td>${z.sell==="ναι"?'<span class="tag ok">ναι</span>':'<span class="tag mu">όχι</span>'}</td></tr>`).join("")}
+        </tbody></table></div></div></div>
+      <div class="banner" style="background:var(--card2);color:var(--sec);border-color:var(--bd)">ℹ <div>Μετακίνηση σε ζώνη (π.χ. Faulty, Service) <b>δεν αλλάζει ποσότητα στο SoftOne</b>. Έτσι κρατάς παρακολούθηση χωρίς να χαλάς την τιμολόγηση.</div></div>`;
+  },
+  users(){
+    $("#view").innerHTML=demoBanner+`
+      <div class="card"><div class="hd"><h3>Χρήστες</h3><button class="btn sm pri" onclick="toast('Μπαίνει με τον server + βάση')">+ Χρήστης</button></div>
+        <div class="bd" style="padding:0"><div class="tbl-wrap" style="border:0">
+        <table><thead><tr><th>Χρήστης</th><th>Όνομα</th><th>Ρόλος</th><th>Συσκευές</th><th>Τελευταία είσοδος</th></tr></thead><tbody>
+        ${DEMO.users.map(u=>`<tr><td class="mono">${esc(u.u)}</td><td>${esc(u.name)}</td><td><span class="tag mu">${esc(u.role)}</span></td><td style="color:var(--sec)">${esc(u.dev)}</td><td style="color:var(--sec)">${esc(u.last)}</td></tr>`).join("")}
+        </tbody></table></div></div></div>
+      <div class="banner" style="background:var(--card2);color:var(--sec);border-color:var(--bd)">ℹ <div>Ρόλοι: Διαχειριστής, Υπεύθυνος αποθήκης, Picker (μόνο PDA), Προβολή. Οι διαχειριστές με Authenticator. Κάθε είσοδος κρατιέται και δεν σβήνεται.</div></div>`;
+  },
+  settings(){
+    $("#view").innerHTML=demoBanner+`
+      <div class="card"><div class="hd"><h3>Παράμετροι picking & αναπλήρωσης</h3></div>
+        <div class="bd">${DEMO.settings.map(s=>`<div class="set-row"><div class="lbl"><b>${esc(s.label)}</b><span>${esc(s.note)}</span></div><input value="${esc(s.val)}" data-k="${esc(s.k)}"></div>`).join("")}
+        <div style="margin-top:14px;display:flex;gap:9px"><button class="btn pri" onclick="toast('Θα αποθηκεύεται στη βάση (ρυθμίσεις με ιστορικό)')">Αποθήκευση</button></div></div></div>`;
+  }
+};
+function movesTable(rows){
+  return `<table><thead><tr><th>Ώρα</th><th>Χρήστης</th><th>Τύπος</th><th>Είδος</th><th class="num">Ποσ.</th><th>Από</th><th>Προς</th><th>Παραστατικό</th></tr></thead><tbody>
+    ${rows.map(m=>`<tr><td style="color:var(--sec)">${esc(m.t)}</td><td class="mono">${esc(m.u)}</td><td><span class="tag ${m.typ==='PICK'?'wa':m.typ==='RCV'?'ok':'mu'}">${esc(m.typ)}</span></td><td class="mono">${esc(m.sku)}</td><td class="num" style="color:${m.q<0?'var(--er)':'var(--ok)'}">${m.q>0?'+':''}${m.q}</td><td class="mono" style="color:var(--sec)">${esc(m.from)}</td><td class="mono">${esc(m.to)}</td><td style="color:var(--sec)">${esc(m.doc)}</td></tr>`).join("")}
+    </tbody></table>`;
+}
+function itemsTable(rows){
+  return `<table><thead><tr><th>SKU</th><th>Περιγραφή</th><th>Θέση</th><th class="num">Τεμ.</th><th>Ταχύτητα</th></tr></thead><tbody>
+    ${rows.map(i=>`<tr><td class="mono">${esc(i.sku)}</td><td style="white-space:normal">${esc(i.name)}</td><td class="mono" style="color:var(--sec)">${esc(i.loc)}</td><td class="num">${i.qty}</td><td>${speedTag(i.speed)}</td></tr>`).join("")}
+    </tbody></table>${rows.length?"":'<div class="empty">Κανένα είδος.</div>'}`;
+}
+window.filterItems=function(){const q=$("#q").value.toLowerCase().trim();
+  const r=DEMO.items.filter(i=>!q||i.sku.toLowerCase().includes(q)||i.name.toLowerCase().includes(q));
+  $("#itemsTbl").innerHTML=itemsTable(r);};
+window.filterMoves=function(){const q=$("#q").value.toLowerCase().trim();
+  const r=DEMO.moves.filter(m=>!q||(m.sku+m.u+m.from+m.to+m.typ).toLowerCase().includes(q));
+  $("#movesTbl").innerHTML=movesTable(r);};
+window.go=go;
+
+/* ---------- Login / θέμα ---------- */
+$("#loginForm").addEventListener("submit",e=>{
+  e.preventDefault();
+  const u=$("#li_user").value.trim()||"akis";
+  $("#login").style.display="none"; $("#app").hidden=false;
+  const init=(u[0]||"Α").toUpperCase();
+  $("#meAv").textContent=init; $("#meName").textContent=u==="akis"?"Άκης":u; $("#meRole").textContent="Διαχειριστής";
+  buildNav(); go("dash"); tickSync();
+});
+$("#logout").onclick=()=>{$("#app").hidden=true;$("#login").style.display="grid";};
+$("#hamb").onclick=()=>$("#side").classList.toggle("open");
+$("#theme").onclick=()=>{const r=document.documentElement;const d=r.getAttribute("data-theme")==="dark"||(!r.getAttribute("data-theme")&&matchMedia("(prefers-color-scheme:dark)").matches);r.setAttribute("data-theme",d?"light":"dark");};
+function tickSync(){const p=$("#syncPill");let on=true;const upd=()=>{p.innerHTML=`<span style="color:var(--ok)">●</span> SoftOne · συγχρ. μόλις τώρα`;};upd();}
+// auto-focus κωδικού
+$("#li_pin").focus();
+</script>
+</body>
+</html>
