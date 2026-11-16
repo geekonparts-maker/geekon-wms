@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<title>GeekOn WMS · PDA</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Commissioner:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;700&display=swap">
+<style>
+/* [AD] 16/11/2026: PDA GeekOn WMS (πρωτότυπο v1) — όλες οι διαδικασίες: Παραλαβή, Τοποθέτηση, Picking,
+   Αναπλήρωση, Απογραφή, Μετακινήσεις, Αναζήτηση. Touch-first, scan-driven (keyboard wedge + Enter, όπως τα Honeywell).
+   ΔΕΙΓΜΑ δεδομένων στον browser· η βάση GeekOnWMS + server API μπαίνουν από κάτω μετά. */
+:root{
+  --or:#ED872D; --or-d:#C96F1E; --or-t:#FDF1E6;
+  --fg:#15171C; --bg:#EEECE8; --card:#FFFFFF; --card2:#F6F4F1; --sec:#656B74; --mut:#9AA0AB; --bd:#E2DFDA;
+  --er:#C9362F; --er-t:#FCEBEA; --ok:#15803D; --ok-t:#E4F6EC; --warn:#B4690E; --warn-t:#FBEFDC; --info:#1D4ED8; --info-t:#E7EDFD;
+  --head:#1C1F26; --head-fg:#fff;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --sans:Commissioner,system-ui,"Segoe UI",Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --fg:#ECEEF2; --bg:#0C0E12; --card:#181B21; --card2:#13161B; --sec:#9AA1AD; --mut:#747C8A; --bd:#272C35;
+  --er:#F2766F; --er-t:#38201E; --ok:#53C584; --ok-t:#12301F; --warn:#E0A24A; --warn-t:#2F2411; --info:#7AA0F5; --info-t:#1A2440;
+  --head:#05070A; --or-t:#3A2A1C; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --fg:#ECEEF2; --bg:#0C0E12; --card:#181B21; --card2:#13161B; --sec:#9AA1AD; --mut:#747C8A; --bd:#272C35;
+  --er:#F2766F; --er-t:#38201E; --ok:#53C584; --ok-t:#12301F; --warn:#E0A24A; --warn-t:#2F2411; --info:#7AA0F5; --info-t:#1A2440;
+  --head:#05070A; --or-t:#3A2A1C; color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0}
+body{background:#0a0a0c;color:var(--fg);font-family:var(--sans);font-size:16px;-webkit-font-smoothing:antialiased;
+  display:grid;place-items:center}
+.mono{font-family:var(--mono)}
+/* συσκευή: κορνίζα σε desktop, πλήρης σε κινητό */
+.dev{width:min(430px,100vw);height:min(900px,100vh);background:var(--bg);display:flex;flex-direction:column;position:relative;overflow:hidden}
+@media (min-width:460px){.dev{border-radius:26px;box-shadow:0 20px 60px rgba(0,0,0,.5);height:min(880px,96vh);border:1px solid #222}}
+button,input,select{font:inherit;color:inherit}
+
+/* header */
+.hd{background:var(--head);color:var(--head-fg);padding:calc(10px + env(safe-area-inset-top)) 14px 10px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.hd .bk{all:unset;cursor:pointer;width:34px;height:34px;display:grid;place-items:center;border-radius:9px;font-size:20px}
+.hd .bk:active{background:rgba(255,255,255,.12)}
+.hd .ti{flex:1;min-width:0}
+.hd .ti b{display:block;font-size:16px;font-weight:700;line-height:1.15;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hd .ti span{font-size:11.5px;color:#AEB4C0}
+.hd .rt{display:flex;align-items:center;gap:6px}
+.chip{background:rgba(255,255,255,.12);border-radius:999px;padding:4px 10px;font-size:11px;font-weight:700;display:inline-flex;gap:5px;align-items:center}
+.hd .u{width:30px;height:30px;border-radius:50%;background:var(--or);display:grid;place-items:center;font-weight:800;font-size:13px}
+
+/* body */
+.bd{flex:1;overflow-y:auto;overflow-x:hidden;padding:14px;display:flex;flex-direction:column;gap:12px;-webkit-overflow-scrolling:touch}
+.bd::-webkit-scrollbar{width:0}
+
+/* generic */
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:13px}
+.row{display:flex;align-items:center;gap:10px}
+.btn{all:unset;cursor:pointer;background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:13px 15px;font-weight:600;text-align:center;display:flex;align-items:center;justify-content:center;gap:9px}
+.btn:active{transform:scale(.985)}
+.btn.pri{background:var(--or);border-color:var(--or);color:#fff}
+.btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.btn.dng{background:var(--er);border-color:var(--er);color:#fff}
+.btn.lg{padding:16px;font-size:17px;border-radius:14px}
+.btn.gho{background:transparent}
+.btn.block{width:100%}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:700;line-height:1.3}
+.tag.ok{background:var(--ok-t);color:var(--ok)} .tag.er{background:var(--er-t);color:var(--er)}
+.tag.wa{background:var(--warn-t);color:var(--warn)} .tag.in{background:var(--info-t);color:var(--info)}
+.tag.mu{background:var(--card2);color:var(--sec);border:1px solid var(--bd)}
+.muted{color:var(--sec)} .small{font-size:12.5px} .xs{font-size:11.5px}
+.big{font-size:22px;font-weight:800;letter-spacing:-.01em}
+.center{text-align:center}
+.sp{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.divider{height:1px;background:var(--bd);margin:2px 0}
+.list{display:flex;flex-direction:column;gap:9px}
+.item{background:var(--card);border:1px solid var(--bd);border-radius:13px;padding:12px 13px;display:flex;align-items:center;gap:12px;cursor:pointer}
+.item:active{background:var(--card2)}
+.item .ic{width:40px;height:40px;border-radius:11px;background:var(--or-t);color:var(--or-d);display:grid;place-items:center;font-size:19px;flex-shrink:0}
+.item .gr{flex:1;min-width:0}
+.item .gr b{font-size:14.5px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item .gr span{font-size:12px;color:var(--sec)}
+.item .ar{color:var(--mut);font-size:19px}
+.badge{min-width:24px;height:24px;padding:0 7px;border-radius:12px;background:var(--er);color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center}
+.badge.z{background:var(--card2);color:var(--mut);border:1px solid var(--bd)}
+.prog{height:8px;border-radius:6px;background:var(--card2);overflow:hidden}
+.prog>i{display:block;height:100%;background:var(--or);transition:width .25s}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:12px;color:var(--sec);font-weight:700}
+.field input{border:1.5px solid var(--bd);background:var(--card2);border-radius:12px;padding:13px;font-size:17px;width:100%}
+.field input:focus{outline:none;border-color:var(--or)}
+.scanbox{border:1.5px dashed var(--or);background:var(--or-t);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:9px}
+.scanbox .lab{font-size:12px;font-weight:800;color:var(--or-d);letter-spacing:.03em;text-transform:uppercase;display:flex;align-items:center;gap:7px}
+.scanbox input{border:1.5px solid var(--or);background:var(--card);border-radius:11px;padding:13px;font-size:17px;font-family:var(--mono);width:100%}
+.scanbox input:focus{outline:none;box-shadow:0 0 0 3px rgba(237,135,45,.25)}
+.hintchips{display:flex;gap:7px;flex-wrap:wrap}
+.hintchips button{all:unset;cursor:pointer;background:var(--card);border:1px dashed var(--bd);border-radius:9px;padding:6px 10px;font-size:12px;font-family:var(--mono);color:var(--sec)}
+.hintchips button:active{background:var(--card2)}
+.qty{display:flex;align-items:stretch;gap:10px}
+.qty button{all:unset;cursor:pointer;width:56px;background:var(--card);border:1px solid var(--bd);border-radius:12px;display:grid;place-items:center;font-size:26px;font-weight:700}
+.qty button:active{background:var(--card2)}
+.qty input{flex:1;text-align:center;font-size:30px;font-weight:800;border:1.5px solid var(--bd);background:var(--card2);border-radius:12px;font-family:var(--mono)}
+.steps{display:flex;gap:6px;align-items:center;font-size:11.5px;color:var(--mut);font-weight:700}
+.steps .d{width:7px;height:7px;border-radius:50%;background:var(--bd)}
+.steps .d.on{background:var(--or)}
+.note{font-size:12px;border-radius:11px;padding:10px 12px;line-height:1.45}
+.note.in{background:var(--info-t);color:var(--info)} .note.wa{background:var(--warn-t);color:var(--warn)}
+.note.ok{background:var(--ok-t);color:var(--ok)} .note.mu{background:var(--card2);color:var(--sec)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px}
+.kv dt{color:var(--sec);font-weight:600} .kv dd{margin:0;text-align:right;font-weight:700}
+/* footer action */
+.foot{flex-shrink:0;padding:12px 14px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(to top,var(--bg) 70%,transparent);display:flex;gap:10px}
+/* menu grid */
+.menu{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mtile{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:15px 13px;display:flex;flex-direction:column;gap:9px;cursor:pointer;position:relative;min-height:112px}
+.mtile:active{background:var(--card2)}
+.mtile .mi{width:46px;height:46px;border-radius:13px;display:grid;place-items:center;font-size:23px}
+.mtile b{font-size:15px}
+.mtile span{font-size:11.5px;color:var(--sec);line-height:1.3}
+.mtile .badge{position:absolute;top:12px;right:12px}
+/* login */
+.login{position:absolute;inset:0;z-index:20;background:radial-gradient(900px 500px at 70% -10%,rgba(237,135,45,.2),transparent 60%),var(--bg);display:flex;flex-direction:column;padding:26px 22px calc(22px + env(safe-area-inset-bottom))}
+.login .top{flex:1;display:flex;flex-direction:column;justify-content:center;gap:20px}
+.login .brand{display:flex;align-items:center;gap:12px}
+.login .brand b{background:var(--or);color:#fff;border-radius:13px;padding:10px 13px;font-weight:800;font-size:17px}
+.login .brand h1{margin:0;font-size:22px;font-weight:800}.login .brand span{font-size:12.5px;color:var(--sec);font-weight:600}
+.pinrow{display:flex;gap:11px;justify-content:center;margin:4px 0}
+.pindot{width:15px;height:15px;border-radius:50%;border:2px solid var(--mut)}
+.pindot.on{background:var(--or);border-color:var(--or)}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+.pad button{all:unset;cursor:pointer;height:62px;display:grid;place-items:center;font-size:25px;font-weight:700;background:var(--card);border:1px solid var(--bd);border-radius:15px}
+.pad button:active{background:var(--card2)}
+.pad button.act{background:transparent;border-color:transparent;font-size:15px;color:var(--sec);font-weight:600}
+.selrow{display:flex;gap:9px}
+.selrow select{flex:1;border:1px solid var(--bd);background:var(--card2);border-radius:11px;padding:11px;font-size:14px}
+.loginerr{color:var(--er);font-weight:700;text-align:center;min-height:20px;font-size:14px}
+.toast{position:absolute;left:14px;right:14px;bottom:calc(84px + env(safe-area-inset-bottom));background:var(--head);color:#fff;padding:12px 15px;border-radius:13px;font-size:14px;font-weight:600;text-align:center;z-index:30;opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.toast.show{opacity:1;transform:none}
+.toast.er{background:var(--er)} .toast.ok{background:var(--ok)}
+@keyframes pop{0%{transform:scale(.8);opacity:0}100%{transform:scale(1);opacity:1}}
+.pop{animation:pop .18s ease-out}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="dev">
+  <!-- LOGIN -->
+  <div class="login" id="login">
+    <div class="top">
+      <div class="brand"><b>WMS</b><div><h1>GeekOn WMS</h1><span>Φορητό τερματικό</span></div></div>
+      <div class="selrow">
+        <select id="pWh"><option>Κεντρική αποθήκη (1000)</option></select>
+      </div>
+      <div class="field"><label>Χρήστης</label>
+        <select id="pUser" style="border:1.5px solid var(--bd);background:var(--card2);border-radius:12px;padding:13px;font-size:16px">
+          <option value="akis">Άκης — Διαχειριστής</option>
+          <option value="giannis">Γιάννης — Υπεύθυνος</option>
+          <option value="maria">Μαρία — Picker</option>
+        </select></div>
+      <div>
+        <div class="muted small" style="text-align:center;margin-bottom:9px">PIN (δείγμα: 1234)</div>
+        <div class="pinrow" id="pinDots"></div>
+        <div class="loginerr" id="pinErr"></div>
+      </div>
+      <div class="pad" id="pad"></div>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <div class="hd" id="hd" hidden>
+    <button class="bk" id="back" hidden>‹</button>
+    <div class="ti"><b id="htitle">Μενού</b><span id="hsub"></span></div>
+    <div class="rt">
+      <span class="chip" id="scanChip" title="Σαρωτής">▣</span>
+      <div class="u" id="huser">Α</div>
+    </div>
+  </div>
+
+  <div class="bd" id="screen" hidden></div>
+  <div class="foot" id="foot" hidden></div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+"use strict";
+/* ========== helpers ========== */
+const $=s=>document.querySelector(s), el=(h)=>{const d=document.createElement("div");d.innerHTML=h.trim();return d.firstElementChild;};
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pad2=n=>String(n).padStart(2,"0");
+let toastT; function toast(m,kind){const t=$("#toast");t.className="toast show"+(kind?" "+kind:"");t.textContent=m;clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("show"),2000);}
+function beep(ok){try{const a=new(window.AudioContext||window.webkitAudioContext)();const o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.frequency.value=ok?880:200;g.gain.value=.05;o.start();setTimeout(()=>{o.stop();a.close();},ok?90:200);}catch(e){}}
+
+/* ========== ΔΕΙΓΜΑ δεδομένα ========== */
+const ITEMS={
+ "LCD-IPH-11-BLK-INC":{name:"Οθόνη iPhone 11 Incell μαύρη",codes:["LCD-IPH-11-BLK-INC","5901234567890","GH-IP11-INC"],speed:"fast"},
+ "LCD-SAM-A515-OLED":{name:"Οθόνη Samsung A51 OLED",codes:["LCD-SAM-A515-OLED","GH82-23100","8806090"],speed:"fast"},
+ "BAT-IPH-12-APLUS":{name:"Μπαταρία iPhone 12 A+",codes:["BAT-IPH-12-APLUS","616-00813"],speed:"fast"},
+ "BZL-XIA-RN10-BLU":{name:"Τζαμάκι Redmi Note 10 μπλε",codes:["BZL-XIA-RN10-BLU"],speed:"slow"},
+ "CAM-IPH-13-REAR":{name:"Κάμερα πίσω iPhone 13",codes:["CAM-IPH-13-REAR"],speed:"static"},
+ "FLX-OPP-A54-CHG":{name:"Ταινία φόρτισης Oppo A54",codes:["FLX-OPP-A54-CHG"],speed:"slow"},
+ "TMP-IPH-14-GLASS":{name:"Tempered glass iPhone 14",codes:["TMP-IPH-14-GLASS"],speed:"fast"}
+};
+function findItem(code){code=(code||"").trim().toUpperCase();for(const sku in ITEMS){if(sku===code)return sku;if(ITEMS[sku].codes.some(c=>c.toUpperCase()===code))return sku;}return null;}
+// απόθεμα ανά θέση (δείγμα)
+let STOCK={
+ "IS-A02-D03-R01-P04":{"LCD-IPH-11-BLK-INC":34},
+ "IS-A01-D02-R02-P07":{"LCD-SAM-A515-OLED":8},
+ "IS-A03-D01-R01-P11":{"BAT-IPH-12-APLUS":52},
+ "IS-A04-D02-R01-P02":{"TMP-IPH-14-GLASS":0},
+ "YP-A01-D04-R03-P02":{"BZL-XIA-RN10-BLU":120},
+ "YP-A05-D02-R03-P04":{"LCD-IPH-11-BLK-INC":180},
+ "YP-A05-D02-R04-P01":{"LCD-SAM-A515-OLED":60},
+ "YP-A05-D03-R01-P12":{"BAT-IPH-12-APLUS":240},
+ "YP-A06-D01-R02-P03":{"TMP-IPH-14-GLASS":300},
+ "YP-A02-D01-R01-P09":{"FLX-OPP-A54-CHG":17},
+ "O1-A01-D01-R02-P01":{"CAM-IPH-13-REAR":3}
+};
+const LOCS=Object.keys(STOCK).concat(["IS-A02-D03-R01-P05","IS-A01-D02-R02-P08","IS-A04-D03-R02-P06","RCV-01","FAULTY-01","SERVICE-01"]);
+function locExists(c){c=(c||"").trim().toUpperCase();return LOCS.includes(c)||/^(IS|YP|O1)-A\d+-D\d+-R\d+-P\d+$/.test(c)||/^(RCV|FAULTY|SERVICE|RET|RTS)-\d+$/.test(c);}
+function qtyAt(loc,sku){return (STOCK[loc]&&STOCK[loc][sku])||0;}
+function move(sku,qty,from,to,typ,doc){
+  if(from){STOCK[from]=STOCK[from]||{};STOCK[from][sku]=(STOCK[from][sku]||0)-qty;}
+  if(to){STOCK[to]=STOCK[to]||{};STOCK[to][sku]=(STOCK[to][sku]||0)+qty;}
+  LEDGER.unshift({t:now(),u:SESSION.user,typ,sku,q:(from&&!to?-qty:qty),from:from||"—",to:to||"—",doc:doc||""});
+}
+function now(){const d=new Date();return `${pad2(d.getDate())}/${pad2(d.getMonth()+1)} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;}
+let LEDGER=[
+ {t:"16/11 16:40",u:"akis",typ:"PICK",sku:"BAT-IPH-12-APLUS",q:-2,from:"IS-A03-D01-R01-P11",to:"—",doc:"Παραγγ. 24581"},
+ {t:"16/11 15:58",u:"akis",typ:"RCV",sku:"CAM-IPH-13-REAR",q:5,from:"—",to:"RCV-01",doc:"ΠΣΚ0003421"}
+];
+// παραλαβές σε αναμονή
+let RECEIPTS=[
+ {id:"PAR-24731",sup:"iTSYS",date:"16/11",lines:[{sku:"LCD-IPH-11-BLK-INC",exp:50,got:0},{sku:"BAT-IPH-12-APLUS",exp:40,got:0},{sku:"TMP-IPH-14-GLASS",exp:100,got:0}]},
+ {id:"PAR-24732",sup:"Mobix",date:"16/11",lines:[{sku:"LCD-SAM-A515-OLED",exp:20,got:0},{sku:"FLX-OPP-A54-CHG",exp:30,got:0}]}
+];
+// ουρά τοποθέτησης (στη ζώνη RCV)
+let PUTAWAY=[{sku:"CAM-IPH-13-REAR",qty:5,from:"RCV-01"}];
+// παραγγελίες για picking
+let ORDERS=[
+ {id:"24581",cust:"Κινητοφωνική ΕΠΕ",lines:[{sku:"LCD-IPH-11-BLK-INC",qty:4,loc:"IS-A02-D03-R01-P04",done:0},{sku:"BAT-IPH-12-APLUS",qty:6,loc:"IS-A03-D01-R01-P11",done:0}]},
+ {id:"24582",cust:"Service Spot",lines:[{sku:"LCD-SAM-A515-OLED",qty:2,loc:"IS-A01-D02-R02-P07",done:0},{sku:"TMP-IPH-14-GLASS",qty:10,loc:"IS-A04-D02-R01-P02",done:0}]}
+];
+// αναπλήρωση σήμερα
+let REPLEN=[
+ {sku:"LCD-SAM-A515-OLED",from:"YP-A05-D02-R04-P01",to:"IS-A01-D02-R02-P07",qty:10,done:0},
+ {sku:"BAT-IPH-12-APLUS",from:"YP-A05-D03-R01-P12",to:"IS-A03-D01-R01-P11",qty:20,done:0},
+ {sku:"TMP-IPH-14-GLASS",from:"YP-A06-D01-R02-P03",to:"IS-A04-D02-R01-P02",qty:40,done:0}
+];
+const SPEED={fast:'<span class="tag ok">fast</span>',slow:'<span class="tag wa">slow</span>',static:'<span class="tag mu">ακίνητο</span>'};
+const ROLES={akis:{n:"Άκης",r:"Διαχειριστής"},giannis:{n:"Γιάννης",r:"Υπεύθυνος"},maria:{n:"Μαρία",r:"Picker"}};
+
+/* ========== session / nav ========== */
+const SESSION={user:"akis"};
+let STACK=[];
+function nav(screen,arg){STACK.push({screen,arg});render();}
+function back(){STACK.pop();render();}
+function home(){STACK=[{screen:"menu"}];render();}
+function setHead(title,sub){$("#htitle").textContent=title;$("#hsub").textContent=sub||"";$("#back").hidden=STACK.length<=1;}
+function render(){
+  const cur=STACK[STACK.length-1];
+  $("#foot").hidden=true;$("#foot").innerHTML="";
+  SCREENS[cur.screen](cur.arg||{});
+}
+
+/* ========== LOGIN ========== */
+let PIN="";
+function buildPad(){
+  const keys=["1","2","3","4","5","6","7","8","9","C","0","✓"];
+  $("#pad").innerHTML=keys.map(k=>`<button data-k="${k}" ${k==="C"||k==="✓"?'class="act"':''}>${k==="C"?"⌫":k}</button>`).join("");
+  $("#pad").querySelectorAll("button").forEach(b=>b.onclick=()=>pinKey(b.dataset.k));
+  drawDots();
+}
+function drawDots(){$("#pinDots").innerHTML=[0,1,2,3].map(i=>`<div class="pindot ${i<PIN.length?'on':''}"></div>`).join("");}
+function pinKey(k){
+  if(k==="C"){PIN=PIN.slice(0,-1);}
+  else if(k==="✓"){return doLogin();}
+  else if(PIN.length<4){PIN+=k;}
+  drawDots();
+  if(PIN.length===4)setTimeout(doLogin,120);
+}
+function doLogin(){
+  if(PIN!=="1234"&&PIN.length===4){$("#pinErr").textContent="Λάθος PIN (δείγμα: 1234)";beep(false);PIN="";drawDots();return;}
+  if(PIN!=="1234")return;
+  SESSION.user=$("#pUser").value;
+  $("#login").hidden=true;$("#hd").hidden=false;$("#screen").hidden=false;
+  $("#huser").textContent=ROLES[SESSION.user].n[0];
+  home();
+}
+
+/* ========== SCREENS ========== */
+const SCREENS={};
+const MODULES=[
+ {id:"rcv",ic:"📦",bg:"#E7EDFD",fg:"#1D4ED8",t:"Παραλαβή",d:"Scan ειδών από ΠΑΡ",badge:()=>RECEIPTS.length},
+ {id:"put",ic:"⤓",bg:"#FBEFDC",fg:"#B4690E",t:"Τοποθέτηση",d:"Από παραλαβή στα ράφια",badge:()=>PUTAWAY.length},
+ {id:"pick",ic:"🛒",bg:"#E4F6EC",fg:"#15803D",t:"Picking",d:"Συλλογή παραγγελιών",badge:()=>ORDERS.length},
+ {id:"rpl",ic:"⤒",bg:"#FDF1E6",fg:"#C96F1E",t:"Αναπλήρωση",d:"Γέμισμα fast picking",badge:()=>REPLEN.filter(r=>!r.done).length},
+ {id:"inv",ic:"🧮",bg:"#F0ECFB",fg:"#6D28D9",t:"Απογραφή",d:"Καταμέτρηση θέσης",badge:()=>0},
+ {id:"mov",ic:"↔",bg:"#E7F6F6",fg:"#0E7490",t:"Μετακίνηση",d:"Είδος σε άλλη θέση/ζώνη",badge:()=>0},
+ {id:"fnd",ic:"🔍",bg:"#F6F4F1",fg:"#656B74",t:"Αναζήτηση",d:"Πού είναι ένα είδος",badge:()=>0}
+];
+SCREENS.menu=function(){
+  setHead("Μενού","GeekOn WMS");
+  const s=$("#screen");
+  s.innerHTML=`
+    <div class="card sp" style="align-items:center">
+      <div><div class="xs muted">Συνδεδεμένος</div><b>${esc(ROLES[SESSION.user].n)}</b> <span class="tag mu">${esc(ROLES[SESSION.user].r)}</span></div>
+      <button class="btn gho small" id="lo" style="padding:8px 12px">Έξοδος ⎋</button>
+    </div>
+    <div class="menu">${MODULES.map(m=>`
+      <div class="mtile" data-m="${m.id}">
+        ${m.badge()?`<span class="badge">${m.badge()}</span>`:``}
+        <div class="mi" style="background:${m.bg};color:${m.fg}">${m.ic}</div>
+        <b>${m.t}</b><span>${m.d}</span>
+      </div>`).join("")}</div>
+    <div class="note mu">Σαρωτής Honeywell: keyboard-wedge + Enter. Χωρίς σαρωτή, γράψε τον κωδικό ή πάτα τα δείγματα.</div>`;
+  s.querySelectorAll(".mtile").forEach(t=>t.onclick=()=>nav(t.dataset.m));
+  $("#lo").onclick=()=>{PIN="";$("#login").hidden=false;$("#hd").hidden=true;$("#screen").hidden=true;$("#foot").hidden=true;buildPad();};
+};
+
+/* ---- ΣΑΡΩΤΗΣ component ---- */
+function scanField(label,placeholder,onScan,chips){
+  const box=el(`<div class="scanbox">
+    <div class="lab">▣ ${esc(label)}</div>
+    <input inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="${esc(placeholder)}">
+    ${chips&&chips.length?`<div class="hintchips">${chips.map(c=>`<button data-c="${esc(c)}">${esc(c)}</button>`).join("")}</div>`:``}
+  </div>`);
+  const inp=box.querySelector("input");
+  const fire=v=>{v=(v||"").trim();if(!v)return;inp.value="";onScan(v);};
+  inp.addEventListener("keydown",e=>{if(e.key==="Enter"||e.keyCode===13||e.keyCode===9){e.preventDefault();fire(inp.value);}});
+  box.querySelectorAll(".hintchips button").forEach(b=>b.onclick=()=>fire(b.dataset.c));
+  setTimeout(()=>inp.focus(),60);
+  box._focus=()=>inp.focus();
+  return box;
+}
+function footBtns(btns){
+  const f=$("#foot");f.hidden=false;f.innerHTML="";
+  btns.forEach(b=>{const x=el(`<button class="btn ${b.cls||''} block">${esc(b.t)}</button>`);if(b.dis)x.setAttribute("disabled","");x.onclick=b.on;f.appendChild(x);});
+}
+
+/* ---- ΠΑΡΑΛΑΒΗ ---- */
+SCREENS.rcv=function(){
+  setHead("Παραλαβή","Διάλεξε ΠΑΡ");
+  const s=$("#screen");
+  if(!RECEIPTS.length){s.innerHTML=`<div class="note ok center">Καμία παραλαβή σε αναμονή.</div>`;return;}
+  s.innerHTML=`<div class="muted small">${RECEIPTS.length} παραλαβές σε αναμονή</div><div class="list" id="ls"></div>`;
+  RECEIPTS.forEach(r=>{
+    const tot=r.lines.reduce((a,l)=>a+l.exp,0),got=r.lines.reduce((a,l)=>a+l.got,0);
+    const it=el(`<div class="item"><div class="ic">📦</div><div class="gr"><b>${esc(r.id)}</b><span>${esc(r.sup)} · ${esc(r.date)} · ${r.lines.length} είδη</span></div>${got?`<span class="tag wa">${got}/${tot}</span>`:`<span class="ar">›</span>`}</div>`);
+    it.onclick=()=>nav("rcvOpen",{id:r.id});s.querySelector("#ls").appendChild(it);
+  });
+};
+SCREENS.rcvOpen=function({id}){
+  const r=RECEIPTS.find(x=>x.id===id);if(!r)return back();
+  setHead("Παραλαβή "+r.id,r.sup);
+  const s=$("#screen");s.innerHTML="";
+  const sc=scanField("Σκάναρε είδος","barcode / SKU / κωδ. προμηθευτή",code=>{
+    const sku=findItem(code);
+    if(!sku){toast("Άγνωστος κωδικός: "+code,"er");beep(false);return;}
+    const line=r.lines.find(l=>l.sku===sku);
+    if(!line){toast("Δεν ανήκει σε αυτή την παραλαβή","er");beep(false);return;}
+    beep(true);nav("rcvQty",{id,sku});
+  },["LCD-IPH-11-BLK-INC","616-00813","GH82-23100"]);
+  s.appendChild(sc);
+  const prog=el(`<div class="card"><div class="sp" style="margin-bottom:9px"><b>Πρόοδος</b><span class="muted small" id="pr"></span></div><div class="list" id="ll"></div></div>`);
+  s.appendChild(prog);
+  function draw(){
+    const ll=prog.querySelector("#ll");ll.innerHTML="";
+    r.lines.forEach(l=>{
+      const done=l.got>=l.exp;
+      ll.appendChild(el(`<div class="sp" style="padding:7px 0;border-bottom:1px solid var(--bd)">
+        <div style="min-width:0"><div class="mono small" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(l.sku)}</div><div class="xs muted">${esc(ITEMS[l.sku].name)}</div></div>
+        <span class="tag ${done?'ok':l.got?'wa':'mu'}">${l.got}/${l.exp}</span></div>`));
+    });
+    const tot=r.lines.reduce((a,l)=>a+l.exp,0),got=r.lines.reduce((a,l)=>a+l.got,0);
+    prog.querySelector("#pr").textContent=`${got}/${tot} τεμ.`;
+  }
+  draw();
+  footBtns([{t:"Ολοκλήρωση παραλαβής",cls:"ok",on:()=>{
+    const got=r.lines.reduce((a,l)=>a+l.got,0);
+    if(!got){toast("Δεν σκανάρισες τίποτα","er");return;}
+    r.lines.forEach(l=>{if(l.got>0)move(l.sku,l.got,null,"RCV-01","RCV",r.id);if(l.got>0)PUTAWAY.push({sku:l.sku,qty:l.got,from:"RCV-01"});});
+    RECEIPTS=RECEIPTS.filter(x=>x.id!==id);
+    toast("Παραλαβή "+id+" ολοκληρώθηκε → προς τοποθέτηση","ok");home();
+  }}]);
+};
+SCREENS.rcvQty=function({id,sku}){
+  const r=RECEIPTS.find(x=>x.id===id),line=r.lines.find(l=>l.sku===sku);
+  setHead("Ποσότητα","Παραλαβή "+id);
+  const s=$("#screen");let q=Math.max(1,line.exp-line.got);
+  s.innerHTML=`<div class="card"><div class="mono">${esc(sku)}</div><div class="muted small" style="margin-top:3px">${esc(ITEMS[sku].name)}</div>
+    <div class="note in" style="margin-top:10px">Αναμενόμενα: <b>${line.exp}</b> · ήδη: <b>${line.got}</b></div></div>`;
+  const qb=el(`<div class="qty"><button data-d="-1">−</button><input id="q" value="${q}" inputmode="numeric"><button data-d="1">+</button></div>`);
+  s.appendChild(qb);
+  const inp=qb.querySelector("#q");
+  qb.querySelectorAll("button").forEach(b=>b.onclick=()=>{inp.value=Math.max(0,(+inp.value||0)+ +b.dataset.d);});
+  footBtns([{t:"Καταχώρηση",cls:"pri",on:()=>{const v=+inp.value||0;if(v<=0){toast("Βάλε ποσότητα","er");return;}line.got+=v;toast("+"+v+" "+sku,"ok");beep(true);back();}}]);
+};
+
+/* ---- ΤΟΠΟΘΕΤΗΣΗ ---- */
+function suggestLoc(sku){
+  const sp=ITEMS[sku].speed, floor=sp==="fast"?"IS":sp==="slow"?"YP":"O1";
+  // υπάρχουσα θέση ίδιου είδους;
+  const ex=Object.keys(STOCK).find(l=>l.startsWith(floor)&&STOCK[l][sku]>0);
+  if(ex)return{loc:ex,why:"ίδιο είδος ήδη εκεί"};
+  const free=LOCS.find(l=>l.startsWith(floor)&&!Object.values(STOCK[l]||{}).some(v=>v>0));
+  return{loc:free||floor+"-A01-D01-R01-P01",why:(sp==="fast"?"fast → ισόγειο":sp==="slow"?"slow → υπόγειο":"ακίνητο → 1ος")};
+}
+SCREENS.put=function(){
+  setHead("Τοποθέτηση","Από παραλαβή");
+  const s=$("#screen");
+  if(!PUTAWAY.length){s.innerHTML=`<div class="note ok center">Τίποτα προς τοποθέτηση. 👍</div>`;return;}
+  s.innerHTML=`<div class="muted small">${PUTAWAY.length} προς τοποθέτηση (ζώνη RCV)</div><div class="list" id="ls"></div>`;
+  PUTAWAY.forEach((p,i)=>{
+    const it=el(`<div class="item"><div class="ic">⤓</div><div class="gr"><b class="mono">${esc(p.sku)}</b><span>${esc(ITEMS[p.sku].name)} · ${p.qty} τεμ.</span></div><span class="ar">›</span></div>`);
+    it.onclick=()=>nav("putDo",{i});s.querySelector("#ls").appendChild(it);
+  });
+};
+SCREENS.putDo=function({i}){
+  const p=PUTAWAY[i];if(!p)return back();
+  const sug=suggestLoc(p.sku);
+  setHead("Τοποθέτηση",p.sku);
+  const s=$("#screen");s.innerHTML=`
+    <div class="card"><div class="mono big">${esc(p.sku)}</div><div class="muted small">${esc(ITEMS[p.sku].name)} · ${p.qty} τεμ. ${SPEED[ITEMS[p.sku].speed]}</div></div>
+    <div class="note in"><b>Προτεινόμενη θέση:</b> <span class="mono">${esc(sug.loc)}</span><br><span class="xs">${esc(sug.why)}</span></div>`;
+  const sc=scanField("Σκάναρε θέση","π.χ. "+sug.loc,loc=>{
+    loc=loc.trim().toUpperCase();
+    if(!locExists(loc)){toast("Άγνωστη θέση","er");beep(false);return;}
+    move(p.sku,p.qty,p.from,loc,"PUT","Τοποθέτηση");
+    PUTAWAY.splice(i,1);beep(true);
+    toast("✓ "+p.qty+"× "+p.sku+" → "+loc,"ok");home();
+  },[sug.loc]);
+  s.appendChild(sc);
+  footBtns([{t:"Χρήση προτεινόμενης ("+sug.loc+")",cls:"pri",on:()=>{move(p.sku,p.qty,p.from,sug.loc,"PUT","Τοποθέτηση");PUTAWAY.splice(i,1);beep(true);toast("✓ στη θέση "+sug.loc,"ok");home();}}]);
+};
+
+/* ---- PICKING ---- */
+SCREENS.pick=function(){
+  setHead("Picking","Διάλεξε παραγγελία");
+  const s=$("#screen");
+  if(!ORDERS.length){s.innerHTML=`<div class="note ok center">Καμία παραγγελία για picking.</div>`;return;}
+  s.innerHTML=`<div class="muted small">${ORDERS.length} παραγγελίες</div><div class="list" id="ls"></div>`;
+  ORDERS.forEach(o=>{
+    const done=o.lines.every(l=>l.done>=l.qty);
+    const it=el(`<div class="item"><div class="ic">🛒</div><div class="gr"><b>Παραγγ. ${esc(o.id)}</b><span>${esc(o.cust)} · ${o.lines.length} γραμμές</span></div><span class="tag ${done?'ok':'mu'}">${o.lines.filter(l=>l.done>=l.qty).length}/${o.lines.length}</span></div>`);
+    it.onclick=()=>nav("pickDo",{id:o.id});s.querySelector("#ls").appendChild(it);
+  });
+};
+SCREENS.pickDo=function({id}){
+  const o=ORDERS.find(x=>x.id===id);if(!o)return back();
+  const idx=o.lines.findIndex(l=>l.done<l.qty);
+  if(idx<0){ // ολοκληρώθηκε
+    setHead("Picking "+id,"Ολοκληρώθηκε");
+    $("#screen").innerHTML=`<div class="center" style="padding:30px 0"><div class="big pop" style="font-size:44px">✓</div><div class="big">Έτοιμη!</div><div class="muted">Όλες οι γραμμές μαζεύτηκαν.</div></div>`;
+    footBtns([{t:"Κλείσιμο παραγγελίας → τιμολόγιο",cls:"ok",on:()=>{ORDERS=ORDERS.filter(x=>x.id!==id);toast("Παραγγελία "+id+" → SoftOne","ok");home();}}]);
+    return;
+  }
+  const line=o.lines[idx], step=o.lines.filter(l=>l.done>=l.qty).length;
+  setHead("Picking "+id,`Γραμμή ${idx+1}/${o.lines.length}`);
+  const s=$("#screen");s.innerHTML=`
+    <div class="steps">${o.lines.map((l,i)=>`<div class="d ${l.done>=l.qty?'on':i===idx?'on':''}"></div>`).join("")}<span style="margin-left:6px">${step}/${o.lines.length}</span></div>
+    <div class="card"><div class="xs muted">ΠΗΓΑΙΝΕ ΣΤΗ ΘΕΣΗ</div><div class="big mono">${esc(line.loc)}</div>
+      <div class="divider" style="margin:10px 0"></div>
+      <div class="sp"><div><div class="mono">${esc(line.sku)}</div><div class="xs muted">${esc(ITEMS[line.sku].name)}</div></div><div class="center"><div class="big">${line.qty}</div><div class="xs muted">τεμ.</div></div></div>
+      <div class="xs muted" style="margin-top:6px">Διαθέσιμα εκεί: ${qtyAt(line.loc,line.sku)}</div></div>`;
+  const scLoc=scanField("1. Σκάναρε θέση",line.loc,loc=>{
+    if(loc.trim().toUpperCase()!==line.loc){toast("Λάθος θέση! Πήγαινε "+line.loc,"er");beep(false);return;}
+    beep(true);scLoc.style.display="none";s.appendChild(scItem);scItem._focus();
+  },[line.loc]);
+  const scItem=scanField("2. Σκάναρε είδος",line.sku,code=>{
+    const sku=findItem(code);
+    if(sku!==line.sku){toast("Λάθος είδος!","er");beep(false);return;}
+    beep(true);line.done=line.qty;move(line.sku,line.qty,line.loc,null,"PICK","Παραγγ. "+id);
+    toast("✓ "+line.qty+"× "+line.sku,"ok");render();
+  },[line.sku]);
+  s.appendChild(scLoc);
+  footBtns([{t:"Έλλειψη / προσπέραση",cls:"gho",on:()=>{toast("Σημειώθηκε έλλειψη (δείγμα)","wa");}}]);
+};
+
+/* ---- ΑΝΑΠΛΗΡΩΣΗ ---- */
+SCREENS.rpl=function(){
+  setHead("Αναπλήρωση","Fast picking · σήμερα");
+  const s=$("#screen");const left=REPLEN.filter(r=>!r.done);
+  if(!left.length){s.innerHTML=`<div class="note ok center">Όλες οι αναπληρώσεις έγιναν. 👍</div>`;return;}
+  s.innerHTML=`<div class="muted small">${left.length} εργασίες — με τη σειρά</div><div class="list" id="ls"></div>`;
+  REPLEN.forEach((r,i)=>{
+    const it=el(`<div class="item" style="${r.done?'opacity:.5':''}"><div class="ic">⤒</div><div class="gr"><b class="mono">${esc(r.sku)}</b><span>${esc(r.from)} → ${esc(r.to)} · ${r.qty} τεμ.</span></div>${r.done?'<span class="tag ok">✓</span>':'<span class="ar">›</span>'}</div>`);
+    if(!r.done)it.onclick=()=>nav("rplDo",{i});s.querySelector("#ls").appendChild(it);
+  });
+};
+SCREENS.rplDo=function({i}){
+  const r=REPLEN[i];if(!r||r.done)return back();
+  setHead("Αναπλήρωση",r.sku);
+  const s=$("#screen");s.innerHTML=`
+    <div class="card"><div class="mono big">${esc(r.sku)}</div><div class="muted small">${esc(ITEMS[r.sku].name)}</div>
+    <div class="kv" style="margin-top:10px"><dt>Φέρε από</dt><dd class="mono">${esc(r.from)}</dd><dt>Προς</dt><dd class="mono">${esc(r.to)}</dd><dt>Ποσότητα</dt><dd>${r.qty} τεμ.</dd></div></div>`;
+  let stage={v:0};
+  const sc1=scanField("1. Σκάναρε θέση προέλευσης",r.from,loc=>{if(loc.trim().toUpperCase()!==r.from){toast("Λάθος θέση","er");beep(false);return;}beep(true);sc1.style.display="none";s.appendChild(sc2);sc2._focus();},[r.from]);
+  const sc2=scanField("2. Σκάναρε είδος",r.sku,code=>{if(findItem(code)!==r.sku){toast("Λάθος είδος","er");beep(false);return;}beep(true);sc2.style.display="none";s.appendChild(sc3);sc3._focus();},[r.sku]);
+  const sc3=scanField("3. Σκάναρε θέση picking",r.to,loc=>{if(loc.trim().toUpperCase()!==r.to){toast("Λάθος θέση","er");beep(false);return;}
+    move(r.sku,r.qty,r.from,r.to,"RPL","Αναπλήρωση");r.done=1;beep(true);toast("✓ αναπλήρωση "+r.sku,"ok");home();},[r.to]);
+  s.appendChild(sc1);
+};
+
+/* ---- ΑΠΟΓΡΑΦΗ ---- */
+SCREENS.inv=function(){
+  setHead("Απογραφή","Σκάναρε θέση");
+  const s=$("#screen");s.innerHTML="";
+  const sc=scanField("Σκάναρε θέση για καταμέτρηση","π.χ. IS-A02-D03-R01-P04",loc=>{
+    loc=loc.trim().toUpperCase();if(!locExists(loc)){toast("Άγνωστη θέση","er");beep(false);return;}
+    beep(true);nav("invLoc",{loc});
+  },["IS-A02-D03-R01-P04","IS-A03-D01-R01-P11"]);
+  s.appendChild(sc);
+  s.appendChild(el(`<div class="note mu">Τυφλή καταμέτρηση: γράφεις τι μετράς, το σύστημα δείχνει τη διαφορά μετά. Οι διαφορές θέλουν έγκριση πριν πάνε στο SoftOne.</div>`));
+};
+SCREENS.invLoc=function({loc}){
+  setHead("Απογραφή",loc);
+  const s=$("#screen");const sys=STOCK[loc]||{};
+  s.innerHTML=`<div class="card"><div class="xs muted">ΘΕΣΗ</div><div class="big mono">${esc(loc)}</div></div>
+    <div class="muted small">Σκάναρε κάθε είδος και βάλε ποσότητα:</div>`;
+  const counted={};
+  const listc=el(`<div class="list" id="cl"></div>`);
+  const sc=scanField("Σκάναρε είδος","barcode / SKU",code=>{
+    const sku=findItem(code);if(!sku){toast("Άγνωστο είδος","er");beep(false);return;}
+    if(counted[sku]==null)counted[sku]=0;counted[sku]++;beep(true);draw();
+  },Object.keys(sys));
+  s.appendChild(sc);s.appendChild(listc);
+  function draw(){
+    const keys=[...new Set([...Object.keys(sys),...Object.keys(counted)])];
+    listc.innerHTML="";
+    if(!keys.length){listc.appendChild(el(`<div class="note mu center">Σκάναρε είδη…</div>`));return;}
+    keys.forEach(sku=>{
+      const row=el(`<div class="card" style="padding:10px 12px"><div class="sp"><div style="min-width:0"><div class="mono small">${esc(sku)}</div><div class="xs muted">σύστημα: ${sys[sku]||0}</div></div>
+        <div class="qty" style="width:150px"><button data-d="-1">−</button><input value="${counted[sku]||0}" inputmode="numeric"><button data-d="1">+</button></div></div></div>`);
+      const inp=row.querySelector("input");
+      inp.oninput=()=>{counted[sku]=Math.max(0,+inp.value||0);};
+      row.querySelectorAll("button").forEach(b=>b.onclick=()=>{counted[sku]=Math.max(0,(counted[sku]||0)+ +b.dataset.d);inp.value=counted[sku];});
+      listc.appendChild(row);
+    });
+  }
+  draw();
+  footBtns([{t:"Καταχώρηση καταμέτρησης",cls:"pri",on:()=>{
+    const keys=[...new Set([...Object.keys(sys),...Object.keys(counted)])];
+    let diffs=[];keys.forEach(sku=>{const sy=sys[sku]||0,c=counted[sku]||0;if(c!==sy)diffs.push({sku,sy,c,d:c-sy});});
+    nav("invDiff",{loc,diffs,counted});
+  }}]);
+};
+SCREENS.invDiff=function({loc,diffs,counted}){
+  setHead("Απογραφή",loc+" · διαφορές");
+  const s=$("#screen");
+  if(!diffs.length){s.innerHTML=`<div class="center" style="padding:30px 0"><div class="big pop">✓</div><div class="big">Συμφωνεί!</div><div class="muted">Καμία διαφορά στη θέση ${esc(loc)}.</div></div>`;footBtns([{t:"Τέλος",cls:"ok",on:home}]);return;}
+  s.innerHTML=`<div class="note wa">Βρέθηκαν ${diffs.length} διαφορές. Θέλουν έγκριση πριν ενημερωθεί το SoftOne.</div>
+    <div class="list">${diffs.map(d=>`<div class="card" style="padding:11px 13px"><div class="sp"><div><div class="mono small">${esc(d.sku)}</div><div class="xs muted">σύστημα ${d.sy} → μέτρησες ${d.c}</div></div><span class="tag ${d.d<0?'er':'ok'}">${d.d>0?'+':''}${d.d}</span></div></div>`).join("")}</div>`;
+  footBtns([{t:"Αποστολή για έγκριση",cls:"pri",on:()=>{diffs.forEach(d=>{STOCK[loc]=STOCK[loc]||{};STOCK[loc][d.sku]=d.c;LEDGER.unshift({t:now(),u:SESSION.user,typ:"INV",sku:d.sku,q:d.d,from:d.d<0?loc:"—",to:d.d>0?loc:"—",doc:"Απογραφή (έγκριση)"});});toast("Διαφορές στάλθηκαν για έγκριση","ok");home();}}]);
+};
+
+/* ---- ΜΕΤΑΚΙΝΗΣΗ ---- */
+SCREENS.mov=function(){
+  setHead("Μετακίνηση","Είδος σε άλλη θέση");
+  const s=$("#screen");s.innerHTML="";
+  let st={sku:null,from:null};
+  const scItem=scanField("1. Σκάναρε είδος","barcode / SKU",code=>{
+    const sku=findItem(code);if(!sku){toast("Άγνωστο είδος","er");beep(false);return;}
+    st.sku=sku;beep(true);info();scItem.style.display="none";s.appendChild(scFrom);scFrom._focus();
+  },["LCD-IPH-11-BLK-INC","BAT-IPH-12-APLUS"]);
+  const scFrom=scanField("2. Από θέση","τρέχουσα θέση",loc=>{
+    loc=loc.trim().toUpperCase();if(!locExists(loc)){toast("Άγνωστη θέση","er");beep(false);return;}
+    if(qtyAt(loc,st.sku)<=0){toast("Δεν υπάρχει "+st.sku+" εκεί","er");beep(false);return;}
+    st.from=loc;beep(true);info();scFrom.style.display="none";s.appendChild(qbox);s.appendChild(scTo);scTo._focus();
+  });
+  const qbox=el(`<div class="field"><label>Ποσότητα</label><div class="qty"><button data-d="-1">−</button><input id="mq" value="1" inputmode="numeric"><button data-d="1">+</button></div></div>`);
+  qbox.querySelectorAll("button").forEach(b=>b.onclick=()=>{const q=qbox.querySelector("#mq");q.value=Math.max(1,(+q.value||1)+ +b.dataset.d);});
+  const scTo=scanField("3. Σε θέση / ζώνη","νέα θέση ή FAULTY-01",loc=>{
+    loc=loc.trim().toUpperCase();if(!locExists(loc)){toast("Άγνωστη θέση","er");beep(false);return;}
+    const q=Math.min(+qbox.querySelector("#mq").value||1,qtyAt(st.from,st.sku));
+    move(st.sku,q,st.from,loc,"MOV","Μετακίνηση");beep(true);toast("✓ "+q+"× "+st.sku+" → "+loc,"ok");home();
+  },["FAULTY-01","SERVICE-01"]);
+  const infoBox=el(`<div class="note mu" id="mi" hidden></div>`);
+  s.appendChild(infoBox);s.appendChild(scItem);
+  function info(){infoBox.hidden=false;infoBox.innerHTML=`${st.sku?`<b class="mono">${esc(st.sku)}</b> — ${esc(ITEMS[st.sku].name)}`:''}${st.from?`<br>Από: <span class="mono">${esc(st.from)}</span> (${qtyAt(st.from,st.sku)} τεμ.)`:''}`;}
+};
+
+/* ---- ΑΝΑΖΗΤΗΣΗ ---- */
+SCREENS.fnd=function(){
+  setHead("Αναζήτηση","Πού είναι ένα είδος");
+  const s=$("#screen");s.innerHTML="";
+  const res=el(`<div id="res"></div>`);
+  const sc=scanField("Σκάναρε ή γράψε είδος / θέση","SKU, barcode ή θέση",q=>{
+    q=q.trim();
+    if(locExists(q.toUpperCase())){return showLoc(q.toUpperCase());}
+    const sku=findItem(q);
+    if(sku)return showItem(sku);
+    toast("Δεν βρέθηκε: "+q,"er");beep(false);
+  },["LCD-IPH-11-BLK-INC","BAT-IPH-12-APLUS","IS-A02-D03-R01-P04"]);
+  s.appendChild(sc);s.appendChild(res);
+  function showItem(sku){
+    beep(true);
+    const locs=Object.keys(STOCK).filter(l=>STOCK[l][sku]>0);
+    const tot=locs.reduce((a,l)=>a+STOCK[l][sku],0);
+    res.innerHTML=`<div class="card"><div class="mono big">${esc(sku)}</div><div class="muted small">${esc(ITEMS[sku].name)} ${SPEED[ITEMS[sku].speed]}</div>
+      <div class="note ${tot?'ok':'wa'}" style="margin-top:10px">Σύνολο: <b>${tot}</b> τεμ. σε ${locs.length} θέσεις</div>
+      <div class="list" style="margin-top:10px">${locs.length?locs.map(l=>`<div class="sp" style="padding:8px 0;border-bottom:1px solid var(--bd)"><span class="mono small">${esc(l)}</span><b>${STOCK[l][sku]}</b></div>`).join(""):'<div class="muted small">Καμία θέση με απόθεμα.</div>'}</div></div>`;
+  }
+  function showLoc(loc){
+    beep(true);const items=STOCK[loc]||{};const keys=Object.keys(items).filter(k=>items[k]>0);
+    res.innerHTML=`<div class="card"><div class="xs muted">ΘΕΣΗ</div><div class="mono big">${esc(loc)}</div>
+      <div class="list" style="margin-top:10px">${keys.length?keys.map(k=>`<div class="sp" style="padding:8px 0;border-bottom:1px solid var(--bd)"><div style="min-width:0"><div class="mono small">${esc(k)}</div><div class="xs muted">${esc(ITEMS[k]?ITEMS[k].name:'')}</div></div><b>${items[k]}</b></div>`).join(""):'<div class="muted small">Άδεια θέση.</div>'}</div></div>`;
+  }
+};
+
+/* ========== boot ========== */
+buildPad();
+$("#back").onclick=back;
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&STACK.length>1)back();});
+</script>
+</body>
+</html>
