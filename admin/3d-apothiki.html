@@ -85,6 +85,7 @@ textarea{width:100%;min-height:120px;border:1px solid var(--bd);border-radius:10
       <button class="btn on" id="v3d">3D</button>
       <button class="btn" id="vtop">Κάτοψη</button>
       <button class="btn" id="vmove" title="Σύρε ένα Dexion πάνω στο πάτωμα">Μετακίνηση</button>
+      <button class="btn" id="vadd" title="Κλικ στο πάτωμα για να μπει Dexion">+ Dexion</button><!-- [AD] 16/11: βάζεις Dexion με το χέρι -->
       <form class="search" id="sform"><input id="sq" placeholder="IS-A02-D03-R01-P12" autocomplete="off" spellcheck="false"><button class="btn" type="submit">Βρες</button></form>
     </div>
     <div class="hint" id="hint">Κλικ σε θέση για τον κωδικό της · σύρε για περιστροφή · ροδέλα για ζουμ</div>
@@ -114,7 +115,7 @@ let L;
 try { L = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { L = null; }
 if (!L || !L.floors || !L.racks) L = example();
 function save() { try { localStorage.setItem(KEY, JSON.stringify(L)); } catch (e) {} }
-const S = { floor: L.floors[0].code, all: false, rack: null, bin: null, move: false, top: false, gen: false, json: false, list: false, del: false, msg: "" };
+const S = { floor: L.floors[0].code, all: false, rack: null, bin: null, move: false, place: false, top: false, gen: false, json: false, list: false, del: false, msg: "" };
 
 const fl = c => L.floors.find(f => f.code === c);
 const rackName = r => `A${pad(r.aisle)}-D${pad(r.num)}`;
@@ -255,6 +256,7 @@ cv.addEventListener("pointerup", e => {
     r.x = +g.position.x.toFixed(2); r.z = +g.position.z.toFixed(2); drag = null; ctl.enabled = true; save(); renderPanel(); return;
   }
   if (!down || Math.hypot(e.clientX - down.x, e.clientY - down.y) > 5) return;
+  if (S.place) { placeAt(e); return; }   // [AD] 16/11
   const h = hitTest(e);
   if (!h) { S.rack = null; S.bin = null; S.del = false; paint(); renderPanel(); return; }
   const id = h.object.userData.rack; S.rack = id; S.del = false;
@@ -262,6 +264,22 @@ cv.addEventListener("pointerup", e => {
   else S.bin = null;
   paint(); renderPanel();
 });
+
+// [AD] 16/11/2026: «+ Dexion»: κάθε κλικ στο πάτωμα βάζει ένα Dexion (ίδιες ρυθμίσεις με το επιλεγμένο, επόμενος αριθμός στον διάδρομο)
+function placeAt(e) {
+  if (S.all) { S.all = false; build(); return setMsg("Διάλεξε πρώτα όροφο (όχι «Όλοι») και ξαναπάτα στο πάτωμα.", true); }
+  setNdc(e); const pt = new THREE.Vector3();
+  if (!ray.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), pt)) return;
+  const f = fl(S.floor); if (pt.x < 0 || pt.z < 0 || pt.x > f.w || pt.z > f.d) return setMsg("Πάτα μέσα στο πάτωμα του ορόφου.", true);
+  const t = L.racks.find(x => x.id === S.rack && x.floor === S.floor);
+  const aisle = t ? t.aisle : nextFree(S.floor).aisle;
+  const num = L.racks.filter(x => x.floor === S.floor && x.aisle === aisle).reduce((m, x) => Math.max(m, x.num), 0) + 1;
+  const snap = v => Math.round(v * 20) / 20;
+  const r = { id: uid(), floor: S.floor, aisle, num, rot: t ? t.rot : 0, w: t ? t.w : 100, d: t ? t.d : 40, h: t ? t.h : 200,
+              shelves: t ? t.shelves.slice() : [6, 10, 12, 12, 12], x: snap(pt.x), z: snap(pt.z) };
+  L.racks.push(r); S.rack = r.id; S.bin = null; changed(true);
+  setMsg(`Μπήκε το ${rackName(r)}. Πάτα ξανά στο πάτωμα για το επόμενο, ή «+ Dexion» για τέλος.`);
+}
 
 // ---------------------------------------------------------------- πάνελ
 const P = document.getElementById("panel");
@@ -291,7 +309,7 @@ function renderPanel() {
         <div class="row" style="justify-content:space-between"><b>Ράφια: ${r.shelves.length}</b><span class="row"><button class="btn" data-shelf="-1">− ράφι</button><button class="btn" data-shelf="1">+ ράφι</button></span></div>
         <div class="shelves">${r.shelves.map((s, i) => `<div class="shelf"><span class="r">R${pad(i + 1)}</span><span class="bar" style="--w:${100 / mx}%;width:${(s / mx) * 100}%"></span><input data-slots="${i}" type="number" min="1" max="60" value="${s}" aria-label="Θέσεις στο ράφι ${i + 1}"></div>`).join("")}</div>
         <div class="row"><label class="f" style="flex:1">Ίδιες θέσεις σε όλα τα ράφια<input id="allslots" type="number" min="1" max="60" placeholder="π.χ. 12"></label><button class="btn" data-allslots="1" style="align-self:flex-end">Εφαρμογή</button></div>
-        <div class="row"><button class="btn" data-dup="1">Αντίγραφο δίπλα</button><button class="btn dng ${S.del ? "arm" : ""}" data-del="1">${S.del ? "Σίγουρα; Πάτα ξανά" : "Διαγραφή"}</button></div>
+        <div class="row"><button class="btn" data-turn="1">⟳ Γύρνα 90°</button><button class="btn" data-dup="1">Αντίγραφο δίπλα</button><button class="btn dng ${S.del ? "arm" : ""}" data-del="1">${S.del ? "Σίγουρα; Πάτα ξανά" : "Διαγραφή"}</button></div>
         <div style="font-size:12px;color:var(--sec)">${rackBins(r)} θέσεις · R01 είναι το κάτω ράφι · P01 η αριστερή θέση από μπροστά.</div></div>`;
     }
   }
@@ -329,6 +347,7 @@ P.addEventListener("click", e => {
   else if (d.copy) copy(d.copy);
   else if (d.shelf) { const r = L.racks.find(x => x.id === S.rack); if (+d.shelf > 0) r.shelves.push(r.shelves[r.shelves.length - 1] || 10); else if (r.shelves.length > 1) r.shelves.pop(); S.bin = null; changed(true); }
   else if (d.allslots) { const v = +document.getElementById("allslots").value; if (v >= 1 && v <= 60) { const r = L.racks.find(x => x.id === S.rack); r.shelves = r.shelves.map(() => v); S.bin = null; changed(true); } }
+  else if (d.turn) { const r = L.racks.find(x => x.id === S.rack); r.rot = ((r.rot || 0) + 90) % 360; changed(true); }
   else if (d.dup) { const r = L.racks.find(x => x.id === S.rack); const nums = L.racks.filter(x => x.floor === r.floor && x.aisle === r.aisle).map(x => x.num); const n = { ...r, id: uid(), num: Math.max(...nums) + 1, shelves: r.shelves.slice(), x: +(r.x + r.w / 100).toFixed(2) }; L.racks.push(n); S.rack = n.id; S.bin = null; changed(true); }
   else if (d.del) { if (!S.del) { S.del = true; renderPanel(); } else { L.racks = L.racks.filter(x => x.id !== S.rack); S.rack = S.bin = null; S.del = false; changed(true); } }
   else if (d.gen) { S.gen = !S.gen; renderPanel(); }
@@ -365,7 +384,10 @@ P.addEventListener("change", e => {
 const tb = id => document.getElementById(id);
 tb("v3d").onclick = () => { S.top = false; tb("v3d").classList.add("on"); tb("vtop").classList.remove("on"); frame("3d"); };
 tb("vtop").onclick = () => { S.top = true; tb("vtop").classList.add("on"); tb("v3d").classList.remove("on"); frame("top"); };
-tb("vmove").onclick = () => { S.move = !S.move; tb("vmove").classList.toggle("on", S.move); tb("hint").textContent = S.move ? "Μετακίνηση: σύρε ένα Dexion στη νέα του θέση (κουμπώνει ανά 5 εκ)" : "Κλικ σε θέση για τον κωδικό της · σύρε για περιστροφή · ροδέλα για ζουμ"; };
+const HINT0 = "Κλικ σε θέση για τον κωδικό της · σύρε για περιστροφή · ροδέλα για ζουμ";
+tb("vadd").onclick = () => { S.place = !S.place; if (S.place) { S.move = false; tb("vmove").classList.remove("on"); }
+  tb("vadd").classList.toggle("on", S.place); tb("hint").textContent = S.place ? "+ Dexion: πάτα στο πάτωμα όπου θες να μπει. Παίρνει τις ρυθμίσεις του επιλεγμένου Dexion." : HINT0; };
+tb("vmove").onclick = () => { S.move = !S.move; if (S.move) { S.place = false; tb("vadd").classList.remove("on"); } tb("vmove").classList.toggle("on", S.move); tb("hint").textContent = S.move ? "Μετακίνηση: σύρε ένα Dexion στη νέα του θέση (κουμπώνει ανά 5 εκ)" : "Κλικ σε θέση για τον κωδικό της · σύρε για περιστροφή · ροδέλα για ζουμ"; };
 tb("sform").onsubmit = e => {
   e.preventDefault();
   const q = tb("sq").value.trim().toUpperCase().replace(/\s+/g, "");
