@@ -1,3 +1,7 @@
+> **[AD] 16/11/2026: νέα κατεύθυνση.** Φτιάχνουμε **δικό μας WMS** (δική του βάση `GeekOnWMS`, ενημερώνει το SoftOne για τιμολόγηση).
+> Σχέδιο και αποφάσεις: [`docs/SXEDIO.md`](docs/SXEDIO.md) · Πρωτότυπο 3D διαχειριστικού: [`admin/3d-apothiki.html`](admin/3d-apothiki.html).
+> Το παρακάτω κείμενο είναι το αρχικό σχέδιο PDA για το Mantis LVS και μένει ως πρότυπο εμφάνισης και ροών.
+
 # Handoff: GeekOn WMS — Mobile Interface για Mantis LVS (Android PDA)
 
 ## Overview

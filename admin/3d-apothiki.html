@@ -1,0 +1,383 @@
+<title>GeekOn WMS Αποθήκη</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Commissioner:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500;700&display=swap">
+<style>
+/* [AD] 16/11/2026: διαχειριστικό WMS - 3D αποθήκη (Όροφος -> Διάδρομος -> Dexion -> Ράφι -> Θέση). Πρωτότυπο.
+   Layout: 3D σκηνή αριστερά (πάνω σε κινητό), πάνελ ελέγχου δεξιά (κάτω σε κινητό). Χρώματα = εφαρμογή PDA. */
+:root{
+  --or:#ED872D; --or-d:#C96F1E; --or-t:#FDF1E6;
+  --fg:#17191E; --bg:#F7F5F2; --card:#FFFFFF; --sec:#6B7280; --mut:#9AA0AB; --bd:#E2E5EA;
+  --er:#C03D3D; --er-t:#FDECEC; --ok:#17803F; --ok-t:#E6F7EE;
+  --scene:#EEF0F3; --floor:#E3E6EA; --grid:#C9CED6; --steel:#5B6270; --shelf:#B9C0CA; --bin:#DDE3EA;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --sans:Commissioner,system-ui,"Segoe UI",Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --or:#F29544; --or-d:#F6AE6A; --or-t:#3A2A1C;
+  --fg:#ECEEF2; --bg:#121418; --card:#1B1E24; --sec:#A3AAB6; --mut:#7D8593; --bd:#2C313A;
+  --er:#F07A7A; --er-t:#3A1F22; --ok:#5CCB8A; --ok-t:#1B3326;
+  --scene:#16191E; --floor:#21252C; --grid:#343A44; --steel:#8E96A3; --shelf:#4A515C; --bin:#3A414C; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --or:#F29544; --or-d:#F6AE6A; --or-t:#3A2A1C;
+  --fg:#ECEEF2; --bg:#121418; --card:#1B1E24; --sec:#A3AAB6; --mut:#7D8593; --bd:#2C313A;
+  --er:#F07A7A; --er-t:#3A1F22; --ok:#5CCB8A; --ok-t:#1B3326;
+  --scene:#16191E; --floor:#21252C; --grid:#343A44; --steel:#8E96A3; --shelf:#4A515C; --bin:#3A414C; color-scheme:dark}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:14px}
+*{box-sizing:border-box}
+button,input,select{font:inherit;color:inherit}
+.app{display:grid;grid-template-columns:minmax(0,1fr) 360px;height:100%}
+.stage{position:relative;min-width:0;background:var(--scene)}
+#cv{display:block;width:100%;height:100%;touch-action:none}
+.panel{border-left:1px solid var(--bd);background:var(--card);overflow-y:auto;padding-block:16px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:16px}
+@media (max-width:820px){.app{grid-template-columns:1fr;grid-template-rows:56vh auto;height:auto}.stage{height:56vh}.panel{border-left:0;border-top:1px solid var(--bd);overflow:visible}}
+.brand{display:flex;align-items:center;gap:10px}
+.brand b{background:var(--or);color:#fff;border-radius:10px;padding:6px 9px;font-weight:800;letter-spacing:.04em;font-size:12px}
+.brand h1{font-size:18px;margin:0;font-weight:800;text-wrap:balance}
+.note{font-size:12px;color:var(--sec);background:var(--or-t);border-radius:10px;padding:8px 10px;line-height:1.45}
+.sec{display:flex;flex-direction:column;gap:8px}
+.sec>h2{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);margin:0;font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--bd);background:var(--card);border-radius:999px;padding:6px 12px;cursor:pointer;font-weight:600;font-size:13px}
+.chip.on{background:var(--or);border-color:var(--or);color:#fff}
+.chip small{font-weight:500;opacity:.75;margin-left:4px}
+.btn{border:1px solid var(--bd);background:var(--card);border-radius:10px;padding:8px 12px;cursor:pointer;font-weight:600}
+.btn.pri{background:var(--or);border-color:var(--or);color:#fff}
+.btn.dng{color:var(--er);border-color:var(--er)}
+.btn.dng.arm{background:var(--er);color:#fff}
+.btn:focus-visible,.chip:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--or);outline-offset:2px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+label.f{display:flex;flex-direction:column;gap:3px;font-size:11px;color:var(--sec);font-weight:600;min-width:0}
+label.f input,label.f select{border:1px solid var(--bd);background:var(--bg);border-radius:8px;padding:7px 8px;font-size:14px;width:100%;min-width:0}
+.code{font-family:var(--mono);font-weight:700;font-size:22px;letter-spacing:.02em}
+.crumb{display:inline-block;background:var(--or-t);color:var(--or-d);border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700}
+.box{border:1px solid var(--bd);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.shelves{display:flex;flex-direction:column-reverse;gap:6px}
+.shelf{display:grid;grid-template-columns:44px 1fr 70px;gap:8px;align-items:center;font-size:13px}
+.shelf .r{font-family:var(--mono);font-weight:700;color:var(--sec)}
+.shelf .bar{height:10px;border-radius:4px;background:repeating-linear-gradient(90deg,var(--shelf) 0 calc(var(--w) - 2px),transparent calc(var(--w) - 2px) var(--w))}
+.shelf input{border:1px solid var(--bd);background:var(--bg);border-radius:8px;padding:5px 6px;width:100%;text-align:right;font-variant-numeric:tabular-nums}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.stats div{border:1px solid var(--bd);border-radius:10px;padding:8px;text-align:center}
+.stats b{display:block;font-size:18px;font-variant-numeric:tabular-nums}
+.stats span{font-size:11px;color:var(--sec)}
+.tool{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));left:max(12px,env(safe-area-inset-left,0px));right:12px;display:flex;flex-wrap:wrap;gap:6px;pointer-events:none}
+.tool>*{pointer-events:auto}
+.tool .btn,.tool .chip{box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.tool .btn.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.search{display:flex;gap:6px;flex:1 1 220px;max-width:340px}
+.search input{flex:1;min-width:0;border:1px solid var(--bd);background:var(--card);border-radius:10px;padding:8px 10px;font-family:var(--mono);text-transform:uppercase}
+.hint{position:absolute;left:max(12px,env(safe-area-inset-left,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));font-size:12px;color:var(--sec);background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:6px 10px;max-width:calc(100% - 24px)}
+.list{font-family:var(--mono);font-size:12px;max-height:240px;overflow:auto;border:1px solid var(--bd);border-radius:10px;padding:8px;white-space:pre;background:var(--bg)}
+.err{color:var(--er);font-size:12px;font-weight:600}
+.ok{color:var(--ok);font-size:12px;font-weight:600}
+textarea{width:100%;min-height:120px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);font-family:var(--mono);font-size:12px;padding:8px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+<div class="app">
+  <div class="stage">
+    <canvas id="cv" aria-label="3D αποθήκη"></canvas>
+    <div class="tool">
+      <button class="btn on" id="v3d">3D</button>
+      <button class="btn" id="vtop">Κάτοψη</button>
+      <button class="btn" id="vmove" title="Σύρε ένα Dexion πάνω στο πάτωμα">Μετακίνηση</button>
+      <form class="search" id="sform"><input id="sq" placeholder="IS-A02-D03-R01-P12" autocomplete="off" spellcheck="false"><button class="btn" type="submit">Βρες</button></form>
+    </div>
+    <div class="hint" id="hint">Κλικ σε θέση για τον κωδικό της · σύρε για περιστροφή · ροδέλα για ζουμ</div>
+  </div>
+  <aside class="panel" id="panel"></aside>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+// [AD] 16/11/2026 ---------------------------------------------------------------- δεδομένα
+const KEY = "gk_wms_layout_v1";
+const pad = n => String(n).padStart(2, "0");
+const uid = () => Math.random().toString(36).slice(2, 9);
+function example() {
+  const racks = [];
+  const add = (floor, aisle, n, z, shelves, x0) => { for (let i = 1; i <= n; i++) racks.push({ id: uid(), floor, aisle, num: i, x: x0 + (i - 1) * 1.0 + 0.5, z, rot: 0, w: 100, d: 40, h: 200, shelves: shelves.slice() }); };
+  add("IS", 1, 6, 1.0, [6, 10, 12, 12, 12], 1);
+  add("IS", 2, 6, 3.6, [6, 10, 12, 12, 12], 1);
+  add("IS", 3, 4, 6.2, [4, 8, 8, 8], 1);
+  add("YP", 1, 4, 1.0, [6, 8, 8], 1);
+  return { example: true, floors: [{ code: "IS", name: "Ισόγειο", w: 12, d: 9, lvl: 0 }, { code: "YP", name: "Υπόγειο", w: 8, d: 6, lvl: -1 }], racks };
+}
+let L;
+try { L = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { L = null; }
+if (!L || !L.floors || !L.racks) L = example();
+function save() { try { localStorage.setItem(KEY, JSON.stringify(L)); } catch (e) {} }
+const S = { floor: L.floors[0].code, all: false, rack: null, bin: null, move: false, top: false, gen: false, json: false, list: false, del: false, msg: "" };
+
+const fl = c => L.floors.find(f => f.code === c);
+const rackName = r => `A${pad(r.aisle)}-D${pad(r.num)}`;
+const binCode = (r, s, p) => `${r.floor}-A${pad(r.aisle)}-D${pad(r.num)}-R${pad(s)}-P${pad(p)}`;
+const rackBins = r => r.shelves.reduce((a, b) => a + (+b || 0), 0);
+function dupes() { const seen = {}, out = new Set(); L.racks.forEach(r => { const k = r.floor + rackName(r); if (seen[k]) { out.add(seen[k]); out.add(r.id); } else seen[k] = r.id; }); return out; }
+
+// ---------------------------------------------------------------- 3D
+const cv = document.getElementById("cv");
+const R3 = new THREE.WebGLRenderer({ canvas: cv, antialias: true });
+R3.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+const scene = new THREE.Scene();
+const cam = new THREE.PerspectiveCamera(45, 1, 0.05, 400);
+const ctl = new THREE.OrbitControls(cam, cv);
+ctl.enableDamping = true; ctl.dampingFactor = 0.12; ctl.maxPolarAngle = Math.PI * 0.495;
+scene.add(new THREE.HemisphereLight(0xffffff, 0x8a8f99, 0.9));
+const sun = new THREE.DirectionalLight(0xffffff, 0.55); sun.position.set(8, 14, 10); scene.add(sun);
+const world = new THREE.Group(); scene.add(world);
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const col = n => new THREE.Color(css(n) || "#888");
+const BOX = new THREE.BoxGeometry(1, 1, 1);
+let pickables = [], rackGroups = {};
+const FLOOR_GAP = 3.4;
+
+function label(text, sub) {
+  const c = document.createElement("canvas"); c.width = 256; c.height = 96;
+  const g = c.getContext("2d");
+  g.fillStyle = css("--card"); g.strokeStyle = css("--or"); g.lineWidth = 6;
+  g.beginPath(); g.roundRect ? g.roundRect(3, 3, 250, 90, 18) : g.rect(3, 3, 250, 90); g.fill(); g.stroke();
+  g.fillStyle = css("--fg"); g.font = "700 40px 'IBM Plex Mono', monospace"; g.textAlign = "center"; g.textBaseline = "middle";
+  g.fillText(text, 128, sub ? 38 : 48);
+  if (sub) { g.fillStyle = css("--sec"); g.font = "600 22px Commissioner, sans-serif"; g.fillText(sub, 128, 74); }
+  const t = new THREE.CanvasTexture(c); t.anisotropy = 4;
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, depthTest: false, sizeAttenuation: false }));
+  sp.scale.set(0.085, 0.032, 1); sp.renderOrder = 10; return sp;
+}
+function floorsShown() { return S.all ? L.floors : L.floors.filter(f => f.code === S.floor); }
+const lvlOf = f => (f && Number.isFinite(+f.lvl)) ? +f.lvl : 0;   // [AD] επίπεδο: 0 ισόγειο, -1 υπόγειο, 1 όροφος...
+const minLvl = () => Math.min(...L.floors.map(lvlOf));
+function elevOf(code) { return S.all ? (lvlOf(fl(code)) - minLvl()) * FLOOR_GAP : 0; }
+
+function build() {
+  while (world.children.length) { const o = world.children.pop(); o.traverse && o.traverse(x => { if (x.material && x.material.map) x.material.map.dispose(); }); }
+  pickables = []; rackGroups = {};
+  scene.background = col("--scene");
+  const cFloor = col("--floor"), cSteel = col("--steel"), cShelf = col("--shelf");
+  const mSteel = new THREE.MeshStandardMaterial({ color: cSteel, roughness: .6, metalness: .3 });
+  const mShelf = new THREE.MeshStandardMaterial({ color: cShelf, roughness: .8 });
+  const bad = dupes();
+  floorsShown().forEach(f => {
+    const y = elevOf(f.code);
+    const slab = new THREE.Mesh(new THREE.BoxGeometry(f.w, 0.06, f.d), new THREE.MeshStandardMaterial({ color: cFloor, roughness: 1, transparent: S.all, opacity: S.all ? 0.85 : 1 }));
+    slab.position.set(f.w / 2, y - 0.03, f.d / 2); slab.userData.floor = f.code; world.add(slab);
+    const grid = new THREE.GridHelper(Math.max(f.w, f.d), Math.max(f.w, f.d), col("--grid"), col("--grid"));
+    grid.position.set(Math.max(f.w, f.d) / 2, y + 0.002, Math.max(f.w, f.d) / 2);
+    grid.material.transparent = true; grid.material.opacity = 0.6;
+    const clip = new THREE.Group(); clip.add(grid); world.add(clip);
+    if (S.all) { const t = label(f.code, f.name); t.scale.set(0.13, 0.05, 1); t.position.set(-0.8, y + 0.6, 0.4); world.add(t); }
+    L.racks.filter(r => r.floor === f.code).forEach(r => {
+      const g = new THREE.Group(); g.position.set(r.x, y, r.z); g.rotation.y = (r.rot || 0) * Math.PI / 180; g.userData.rack = r.id;
+      const W = r.w / 100, D = r.d / 100, H = r.h / 100;
+      [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) => { const p = new THREE.Mesh(BOX, mSteel); p.scale.set(0.035, H, 0.035); p.position.set(sx * (W / 2 - 0.0175), H / 2, sz * (D / 2 - 0.0175)); g.add(p); });
+      const n = r.shelves.length, gap = (H - 0.08) / Math.max(n, 1);
+      const bins = [], mats = [];
+      r.shelves.forEach((slots, si) => {
+        const sy = 0.06 + si * gap;
+        const sh = new THREE.Mesh(BOX, mShelf); sh.scale.set(W, 0.02, D); sh.position.set(0, sy, 0); g.add(sh);
+        const sw = W / Math.max(slots, 1), bh = Math.min(gap * 0.72, 0.32);
+        for (let p = 1; p <= slots; p++) {
+          const m = new THREE.Matrix4().compose(new THREE.Vector3(-W / 2 + sw * (p - 0.5), sy + 0.01 + bh / 2, 0.01), new THREE.Quaternion(), new THREE.Vector3(sw * 0.86, bh, D * 0.84));
+          mats.push(m); bins.push({ s: si + 1, p });
+        }
+      });
+      const im = new THREE.InstancedMesh(BOX, new THREE.MeshStandardMaterial({ roughness: .7 }), Math.max(mats.length, 1));
+      mats.forEach((m, i) => im.setMatrixAt(i, m));
+      im.count = mats.length; im.userData = { rack: r.id, bins }; g.add(im); pickables.push(im);
+      const hit = new THREE.Mesh(BOX, new THREE.MeshBasicMaterial({ visible: false })); hit.scale.set(W, H, D); hit.position.y = H / 2; hit.userData.rack = r.id; g.add(hit); pickables.push(hit);
+      if (bad.has(r.id)) { const e = new THREE.Mesh(BOX, new THREE.MeshBasicMaterial({ color: col("--er"), wireframe: true })); e.scale.set(W + 0.04, H + 0.04, D + 0.04); e.position.y = H / 2; g.add(e); }
+      if (!S.all) { const t = label(rackName(r)); t.position.set(0, H + 0.22, 0); g.add(t); }   // [AD] στο «Όλοι» χωρίς ταμπέλες Dexion (μπερδεύονται)
+      world.add(g); rackGroups[r.id] = { g, im, bins, r };
+    });
+  });
+  paint();
+}
+function paint() {
+  const cBin = col("--bin"), cOr = col("--or"), cTint = col("--bin").lerp(col("--or"), 0.35);
+  Object.values(rackGroups).forEach(({ im, bins, r }) => {
+    bins.forEach((b, i) => {
+      const isSel = S.bin && S.bin.rack === r.id && S.bin.s === b.s && S.bin.p === b.p;
+      im.setColorAt(i, isSel ? cOr : (S.rack === r.id ? cTint : cBin));
+    });
+    if (im.instanceColor) im.instanceColor.needsUpdate = true;
+  });
+}
+function resize() {
+  const w = cv.clientWidth, h = cv.clientHeight; if (!w || !h) return;
+  R3.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix();
+}
+function frame(view) {
+  const fs = floorsShown(); const W = Math.max(...fs.map(f => f.w)), Dd = Math.max(...fs.map(f => f.d));
+  const topY = S.all ? (Math.max(...L.floors.map(lvlOf)) - minLvl()) * FLOOR_GAP : 0;
+  ctl.target.set(W / 2, topY / 2, Dd / 2);
+  const span = Math.max(W, Dd) + topY;
+  if (view === "top") cam.position.set(W / 2, span * 1.25 + 4, Dd / 2 + 0.01);
+  else cam.position.set(W / 2 + span * 0.55, topY + span * 0.7 + 2, Dd + span * 0.75);
+  ctl.update();
+}
+(function loop() { requestAnimationFrame(loop); ctl.update(); R3.render(scene, cam); })();
+new ResizeObserver(resize).observe(cv);
+const rethemed = () => { build(); renderPanel(); };
+try { matchMedia("(prefers-color-scheme: dark)").addEventListener("change", rethemed); } catch (e) {}
+new MutationObserver(rethemed).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
+// ---------------------------------------------------------------- κλικ / σύρσιμο
+const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+let down = null, drag = null;
+function setNdc(e) { const b = cv.getBoundingClientRect(); ndc.set(((e.clientX - b.left) / b.width) * 2 - 1, -((e.clientY - b.top) / b.height) * 2 + 1); ray.setFromCamera(ndc, cam); }
+function hitTest(e) { setNdc(e); return ray.intersectObjects(pickables, false)[0] || null; }
+cv.addEventListener("pointerdown", e => {
+  down = { x: e.clientX, y: e.clientY };
+  if (!S.move) return;
+  const h = hitTest(e); if (!h) return;
+  const id = h.object.userData.rack; const rg = rackGroups[id]; if (!rg) return;
+  const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -rg.g.position.y);
+  const pt = new THREE.Vector3(); if (!ray.ray.intersectPlane(plane, pt)) return;
+  drag = { id, plane, off: new THREE.Vector3(rg.g.position.x - pt.x, 0, rg.g.position.z - pt.z) };
+  ctl.enabled = false; cv.setPointerCapture(e.pointerId); S.rack = id; S.bin = null; paint();
+});
+cv.addEventListener("pointermove", e => {
+  if (!drag) { if (!S.move) { const h = hitTest(e); cv.style.cursor = h ? "pointer" : "grab"; } else cv.style.cursor = "move"; return; }
+  setNdc(e); const pt = new THREE.Vector3(); if (!ray.ray.intersectPlane(drag.plane, pt)) return;
+  const g = rackGroups[drag.id].g, snap = v => Math.round(v * 20) / 20;
+  g.position.x = snap(pt.x + drag.off.x); g.position.z = snap(pt.z + drag.off.z);
+});
+cv.addEventListener("pointerup", e => {
+  if (drag) {
+    const r = L.racks.find(x => x.id === drag.id), g = rackGroups[drag.id].g;
+    r.x = +g.position.x.toFixed(2); r.z = +g.position.z.toFixed(2); drag = null; ctl.enabled = true; save(); renderPanel(); return;
+  }
+  if (!down || Math.hypot(e.clientX - down.x, e.clientY - down.y) > 5) return;
+  const h = hitTest(e);
+  if (!h) { S.rack = null; S.bin = null; S.del = false; paint(); renderPanel(); return; }
+  const id = h.object.userData.rack; S.rack = id; S.del = false;
+  if (h.object.isInstancedMesh && h.instanceId != null) { const b = h.object.userData.bins[h.instanceId]; S.bin = { rack: id, s: b.s, p: b.p }; }
+  else S.bin = null;
+  paint(); renderPanel();
+});
+
+// ---------------------------------------------------------------- πάνελ
+const P = document.getElementById("panel");
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+function nextFree(floor) {
+  const rs = L.racks.filter(r => r.floor === floor);
+  return { aisle: rs.reduce((m, r) => Math.max(m, r.aisle), 0) + 1, z: rs.reduce((m, r) => Math.max(m, r.z + r.d / 200), 0) + 2.2 };
+}
+function renderPanel() {
+  const bad = dupes(), rs = L.racks, f = fl(S.floor);
+  const tot = { floors: L.floors.length, aisles: new Set(rs.map(r => r.floor + r.aisle)).size, racks: rs.length, bins: rs.reduce((a, r) => a + rackBins(r), 0) };
+  let h = `<div class="brand"><b>WMS</b><h1>Αποθήκη GeekOn</h1></div>`;
+  if (L.example) h += `<div class="note"><b>Παράδειγμα.</b> Οι όροφοι και τα Dexion είναι ενδεικτικά. Άλλαξέ τα με τα δικά σου, ή σβήσε τα όλα και φτιάξε από την αρχή. Προς το παρόν αποθηκεύονται μόνο σε αυτόν τον browser.</div>`;
+  h += `<div class="stats"><div><b>${tot.floors}</b><span>όροφοι</span></div><div><b>${tot.aisles}</b><span>διάδρομοι</span></div><div><b>${tot.racks}</b><span>Dexion</span></div><div><b>${tot.bins}</b><span>θέσεις</span></div></div>`;
+  h += `<div class="sec"><h2>Όροφος</h2><div class="chips">${L.floors.map(x => `<button class="chip ${!S.all && x.code === S.floor ? "on" : ""}" data-floor="${esc(x.code)}">${esc(x.code)}<small>${esc(x.name)}</small></button>`).join("")}<button class="chip ${S.all ? "on" : ""}" data-all="1">Όλοι</button><button class="chip" data-addfloor="1">+ Όροφος</button></div>`;
+  if (f && !S.all) h += `<div class="grid2"><label class="f">Κωδικός (2 γράμματα)<input id="fcode" value="${esc(f.code)}" maxlength="3"></label><label class="f">Όνομα<input id="fname" value="${esc(f.name)}"></label><label class="f">Μήκος (μ)<input id="fw" type="number" step="0.5" min="2" value="${f.w}"></label><label class="f">Πλάτος (μ)<input id="fd" type="number" step="0.5" min="2" value="${f.d}"></label><label class="f">Επίπεδο (0 ισόγειο, −1 υπόγειο)<input id="flvl" type="number" step="1" value="${lvlOf(f)}"></label></div>`;
+  h += `</div>`;
+  if (S.rack) {
+    const r = rs.find(x => x.id === S.rack);
+    if (r) {
+      if (S.bin) h += `<div class="box"><div class="crumb">${esc(fl(r.floor)?.name || r.floor)} · Διάδρομος ${pad(r.aisle)} · Dexion ${pad(r.num)} · Ράφι ${pad(S.bin.s)} · Θέση ${pad(S.bin.p)}</div><div class="code">${binCode(r, S.bin.s, S.bin.p)}</div><div class="row"><button class="btn" data-copy="${binCode(r, S.bin.s, S.bin.p)}">Αντιγραφή κωδικού</button></div></div>`;
+      const mx = Math.max(...r.shelves, 1);
+      h += `<div class="sec"><h2>Dexion ${esc(rackName(r))}</h2>${bad.has(r.id) ? `<div class="err">Υπάρχει άλλο Dexion με τον ίδιο κωδικό σε αυτόν τον όροφο.</div>` : ""}
+        <div class="grid3"><label class="f">Διάδρομος<input data-r="aisle" type="number" min="1" value="${r.aisle}"></label><label class="f">Dexion αρ.<input data-r="num" type="number" min="1" value="${r.num}"></label><label class="f">Γωνία<select data-r="rot">${[0, 90, 180, 270].map(a => `<option ${a === r.rot ? "selected" : ""}>${a}</option>`).join("")}</select></label>
+        <label class="f">Μήκος (εκ)<input data-r="w" type="number" min="30" step="5" value="${r.w}"></label><label class="f">Βάθος (εκ)<input data-r="d" type="number" min="20" step="5" value="${r.d}"></label><label class="f">Ύψος (εκ)<input data-r="h" type="number" min="50" step="10" value="${r.h}"></label>
+        <label class="f">Θέση Χ (μ)<input data-r="x" type="number" step="0.05" value="${r.x}"></label><label class="f">Θέση Υ (μ)<input data-r="z" type="number" step="0.05" value="${r.z}"></label><label class="f">Όροφος<select data-r="floor">${L.floors.map(x => `<option ${x.code === r.floor ? "selected" : ""}>${esc(x.code)}</option>`).join("")}</select></label></div>
+        <div class="row" style="justify-content:space-between"><b>Ράφια: ${r.shelves.length}</b><span class="row"><button class="btn" data-shelf="-1">− ράφι</button><button class="btn" data-shelf="1">+ ράφι</button></span></div>
+        <div class="shelves">${r.shelves.map((s, i) => `<div class="shelf"><span class="r">R${pad(i + 1)}</span><span class="bar" style="--w:${100 / mx}%;width:${(s / mx) * 100}%"></span><input data-slots="${i}" type="number" min="1" max="60" value="${s}" aria-label="Θέσεις στο ράφι ${i + 1}"></div>`).join("")}</div>
+        <div class="row"><label class="f" style="flex:1">Ίδιες θέσεις σε όλα τα ράφια<input id="allslots" type="number" min="1" max="60" placeholder="π.χ. 12"></label><button class="btn" data-allslots="1" style="align-self:flex-end">Εφαρμογή</button></div>
+        <div class="row"><button class="btn" data-dup="1">Αντίγραφο δίπλα</button><button class="btn dng ${S.del ? "arm" : ""}" data-del="1">${S.del ? "Σίγουρα; Πάτα ξανά" : "Διαγραφή"}</button></div>
+        <div style="font-size:12px;color:var(--sec)">${rackBins(r)} θέσεις · R01 είναι το κάτω ράφι · P01 η αριστερή θέση από μπροστά.</div></div>`;
+    }
+  }
+  h += `<div class="sec"><h2>Προσθήκη</h2><div class="row"><button class="btn pri" data-gen="1">${S.gen ? "Κλείσιμο" : "+ Νέος διάδρομος με Dexion"}</button></div>`;
+  if (S.gen) {
+    const nf = nextFree(S.floor);
+    h += `<div class="box"><div class="grid3">
+      <label class="f">Όροφος<select id="g_floor">${L.floors.map(x => `<option ${x.code === S.floor ? "selected" : ""}>${esc(x.code)}</option>`).join("")}</select></label>
+      <label class="f">Διάδρομος<input id="g_aisle" type="number" min="1" value="${nf.aisle}"></label><label class="f">Πόσα Dexion<input id="g_n" type="number" min="1" max="60" value="5"></label>
+      <label class="f">Ράφια ανά Dexion<input id="g_sh" type="number" min="1" max="15" value="5"></label><label class="f">Θέσεις ανά ράφι<input id="g_sl" type="number" min="1" max="60" value="12"></label><label class="f">Γωνία<select id="g_rot"><option>0</option><option>90</option><option>180</option><option>270</option></select></label>
+      <label class="f">Μήκος (εκ)<input id="g_w" type="number" value="100"></label><label class="f">Βάθος (εκ)<input id="g_d" type="number" value="40"></label><label class="f">Ύψος (εκ)<input id="g_h" type="number" value="200"></label>
+      <label class="f">Αρχή Χ (μ)<input id="g_x" type="number" step="0.05" value="1"></label><label class="f">Αρχή Υ (μ)<input id="g_z" type="number" step="0.05" value="${nf.z.toFixed(2)}"></label></div>
+      <div class="row"><button class="btn pri" data-gengo="1">Δημιουργία</button><span style="font-size:12px;color:var(--sec)">Μπαίνουν στη σειρά, το ένα δίπλα στο άλλο.</span></div></div>`;
+  }
+  h += `</div>`;
+  h += `<div class="sec"><h2>Θέσεις και αρχείο</h2><div class="row"><button class="btn" data-list="1">${S.list ? "Κλείσε λίστα" : "Λίστα κωδικών θέσεων"}</button><button class="btn" data-json="1">${S.json ? "Κλείσε" : "Εξαγωγή / εισαγωγή"}</button><button class="btn dng" data-reset="1">${S.reset ? "Σίγουρα; Πάτα ξανά" : "Άδειασμα"}</button></div>`;
+  if (S.list) {
+    const codes = []; rs.slice().sort((a, b) => a.floor.localeCompare(b.floor) || a.aisle - b.aisle || a.num - b.num).forEach(r => r.shelves.forEach((s, i) => { for (let p = 1; p <= s; p++) codes.push(binCode(r, i + 1, p)); }));
+    h += `<div class="list" id="codes">${codes.join("\n")}</div><div class="row"><button class="btn" data-copylist="1">Αντιγραφή (${codes.length})</button></div>`;
+  }
+  if (S.json) h += `<textarea id="json" spellcheck="false">${esc(JSON.stringify({ floors: L.floors, racks: L.racks.map(({ id, ...r }) => r) }, null, 1))}</textarea><div class="row"><button class="btn" data-import="1">Φόρτωσε αυτό</button></div>`;
+  if (S.msg) h += `<div class="${S.msgErr ? "err" : "ok"}">${esc(S.msg)}</div>`;
+  h += `</div>`;
+  P.innerHTML = h;
+}
+function setMsg(m, err) { S.msg = m; S.msgErr = !!err; renderPanel(); setTimeout(() => { if (S.msg === m) { S.msg = ""; renderPanel(); } }, 3500); }
+async function copy(t) { try { await navigator.clipboard.writeText(t); setMsg("Αντιγράφηκε"); } catch (e) { setMsg("Δεν επιτράπηκε η αντιγραφή. Επίλεξε το κείμενο και πάτα Ctrl+C.", true); } }
+function changed(rebuild) { L.example = false; save(); if (rebuild) build(); renderPanel(); }
+
+P.addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return; const d = b.dataset;
+  if (d.floor) { S.floor = d.floor; S.all = false; S.rack = S.bin = null; build(); frame(S.top ? "top" : "3d"); renderPanel(); }
+  else if (d.all) { S.all = true; S.rack = S.bin = null; build(); frame("3d"); renderPanel(); }
+  else if (d.addfloor) { let i = 1, c; do { c = "F" + i++; } while (fl(c)); L.floors.push({ code: c, name: "Νέος όροφος", w: 10, d: 8, lvl: Math.max(...L.floors.map(lvlOf)) + 1 }); S.floor = c; S.all = false; changed(true); frame("3d"); }
+  else if (d.copy) copy(d.copy);
+  else if (d.shelf) { const r = L.racks.find(x => x.id === S.rack); if (+d.shelf > 0) r.shelves.push(r.shelves[r.shelves.length - 1] || 10); else if (r.shelves.length > 1) r.shelves.pop(); S.bin = null; changed(true); }
+  else if (d.allslots) { const v = +document.getElementById("allslots").value; if (v >= 1 && v <= 60) { const r = L.racks.find(x => x.id === S.rack); r.shelves = r.shelves.map(() => v); S.bin = null; changed(true); } }
+  else if (d.dup) { const r = L.racks.find(x => x.id === S.rack); const nums = L.racks.filter(x => x.floor === r.floor && x.aisle === r.aisle).map(x => x.num); const n = { ...r, id: uid(), num: Math.max(...nums) + 1, shelves: r.shelves.slice(), x: +(r.x + r.w / 100).toFixed(2) }; L.racks.push(n); S.rack = n.id; S.bin = null; changed(true); }
+  else if (d.del) { if (!S.del) { S.del = true; renderPanel(); } else { L.racks = L.racks.filter(x => x.id !== S.rack); S.rack = S.bin = null; S.del = false; changed(true); } }
+  else if (d.gen) { S.gen = !S.gen; renderPanel(); }
+  else if (d.gengo) {
+    const v = id => document.getElementById(id).value;
+    const floor = v("g_floor"), aisle = +v("g_aisle"), n = +v("g_n"), sh = +v("g_sh"), sl = +v("g_sl"), rot = +v("g_rot"), w = +v("g_w"), dd = +v("g_d"), hh = +v("g_h"), x0 = +v("g_x"), z0 = +v("g_z");
+    if (!(aisle >= 1 && n >= 1 && n <= 60 && sh >= 1 && sl >= 1 && w > 0 && dd > 0 && hh > 0)) return setMsg("Έλεγξε τα νούμερα: όλα πρέπει να είναι πάνω από 0.", true);
+    const vert = rot === 90 || rot === 270;
+    for (let i = 0; i < n; i++) L.racks.push({ id: uid(), floor, aisle, num: i + 1, rot, w, d: dd, h: hh, shelves: Array(sh).fill(sl), x: +(vert ? x0 : x0 + (i + 0.5) * w / 100).toFixed(2), z: +(vert ? z0 + (i + 0.5) * w / 100 : z0).toFixed(2) });
+    S.floor = floor; S.all = false; S.gen = false; changed(true); setMsg(`Μπήκε ο διάδρομος ${pad(aisle)} με ${n} Dexion.`);
+  }
+  else if (d.list) { S.list = !S.list; renderPanel(); }
+  else if (d.copylist) copy(document.getElementById("codes").textContent);
+  else if (d.json) { S.json = !S.json; renderPanel(); }
+  else if (d.import) {
+    try { const j = JSON.parse(document.getElementById("json").value); if (!Array.isArray(j.floors) || !Array.isArray(j.racks) || !j.floors.length) throw 0;
+      L = { floors: j.floors, racks: j.racks.map(r => ({ ...r, id: uid() })) }; S.floor = L.floors[0].code; S.rack = S.bin = null; S.json = false; changed(true); frame("3d"); setMsg("Φορτώθηκε.");
+    } catch (e) { setMsg("Δεν είναι σωστό αρχείο αποθήκης.", true); }
+  }
+  else if (d.reset) { if (!S.reset) { S.reset = true; renderPanel(); } else { L = { floors: [{ code: "IS", name: "Ισόγειο", w: 12, d: 9, lvl: 0 }], racks: [] }; S.floor = "IS"; S.all = false; S.rack = S.bin = null; S.reset = false; changed(true); frame("3d"); } }
+});
+P.addEventListener("change", e => {
+  const t = e.target, f = fl(S.floor);
+  if (t.id === "fcode" && f) { const c = t.value.trim().toUpperCase(); if (!/^[A-Z0-9]{1,3}$/.test(c) || (c !== f.code && fl(c))) return setMsg("Ο κωδικός ορόφου θέλει 1-3 λατινικά γράμματα ή ψηφία και να μην υπάρχει ήδη.", true); L.racks.forEach(r => { if (r.floor === f.code) r.floor = c; }); f.code = c; S.floor = c; return changed(true); }
+  if (t.id === "fname" && f) { f.name = t.value.trim() || f.code; return changed(true); }
+  if (t.id === "flvl" && f) { f.lvl = Math.round(+t.value || 0); return changed(true); }
+  if ((t.id === "fw" || t.id === "fd") && f) { const v = +t.value; if (v >= 2) { f[t.id === "fw" ? "w" : "d"] = v; changed(true); frame(S.top ? "top" : "3d"); } return; }
+  const r = L.racks.find(x => x.id === S.rack); if (!r) return;
+  if (t.dataset.r) { const k = t.dataset.r; r[k] = k === "floor" ? t.value : +t.value; if (k === "floor") { S.floor = t.value; S.all = false; } S.bin = null; return changed(true); }
+  if (t.dataset.slots != null) { const v = Math.max(1, Math.min(60, Math.round(+t.value || 1))); r.shelves[+t.dataset.slots] = v; S.bin = null; return changed(true); }
+});
+
+// ---------------------------------------------------------------- εργαλεία πάνω από το 3D
+const tb = id => document.getElementById(id);
+tb("v3d").onclick = () => { S.top = false; tb("v3d").classList.add("on"); tb("vtop").classList.remove("on"); frame("3d"); };
+tb("vtop").onclick = () => { S.top = true; tb("vtop").classList.add("on"); tb("v3d").classList.remove("on"); frame("top"); };
+tb("vmove").onclick = () => { S.move = !S.move; tb("vmove").classList.toggle("on", S.move); tb("hint").textContent = S.move ? "Μετακίνηση: σύρε ένα Dexion στη νέα του θέση (κουμπώνει ανά 5 εκ)" : "Κλικ σε θέση για τον κωδικό της · σύρε για περιστροφή · ροδέλα για ζουμ"; };
+tb("sform").onsubmit = e => {
+  e.preventDefault();
+  const q = tb("sq").value.trim().toUpperCase().replace(/\s+/g, "");
+  const m = q.match(/^([A-Z0-9]{1,3})-A(\d+)-D(\d+)(?:-R(\d+)(?:-P(\d+))?)?$/);
+  if (!m) return setMsg("Γράψε κωδικό σαν IS-A02-D03-R01-P12 (ή μέχρι το Dexion: IS-A02-D03).", true);
+  const r = L.racks.find(x => x.floor === m[1] && x.aisle === +m[2] && x.num === +m[3]);
+  if (!r) return setMsg(`Δεν υπάρχει το Dexion ${m[1]}-A${pad(+m[2])}-D${pad(+m[3])}.`, true);
+  const s = m[4] ? +m[4] : 0, p = m[5] ? +m[5] : 0;
+  if (s && (s > r.shelves.length || (p && p > r.shelves[s - 1]))) return setMsg("Το Dexion υπάρχει, αλλά δεν έχει τέτοιο ράφι ή θέση.", true);
+  S.floor = r.floor; S.all = false; S.rack = r.id; S.bin = s && p ? { rack: r.id, s, p } : null;
+  build(); renderPanel();
+  const a = (r.rot || 0) * Math.PI / 180, ty = s ? 0.06 + (s - 0.5) * ((r.h / 100 - 0.08) / r.shelves.length) : r.h / 200;
+  ctl.target.set(r.x, ty, r.z); cam.position.set(r.x + Math.sin(a) * 2.4 + 0.5, ty + 0.9, r.z + Math.cos(a) * 2.4); ctl.update();   // [AD] μπροστά από το Dexion
+};
+
+build(); renderPanel(); resize(); frame("3d");
+</script>
