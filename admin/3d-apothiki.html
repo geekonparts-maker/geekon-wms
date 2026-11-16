@@ -96,7 +96,7 @@ textarea{width:100%;min-height:120px;border:1px solid var(--bd);border-radius:10
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>
 // [AD] 16/11/2026 ---------------------------------------------------------------- δεδομένα
-const KEY = "gk_wms_layout_v1";
+const KEY = "gk_wms_layout_v2";   // [AD] v2 16/11: 3 όροφοι του Άκη
 const pad = n => String(n).padStart(2, "0");
 const uid = () => Math.random().toString(36).slice(2, 9);
 function example() {
@@ -106,7 +106,9 @@ function example() {
   add("IS", 2, 6, 3.6, [6, 10, 12, 12, 12], 1);
   add("IS", 3, 4, 6.2, [4, 8, 8, 8], 1);
   add("YP", 1, 4, 1.0, [6, 8, 8], 1);
-  return { example: true, floors: [{ code: "IS", name: "Ισόγειο", w: 12, d: 9, lvl: 0 }, { code: "YP", name: "Υπόγειο", w: 8, d: 6, lvl: -1 }], racks };
+  add("O1", 1, 3, 1.0, [4, 4, 4, 4], 1);
+  // [AD] 16/11: όροφοι του Άκη: IS fast picking, YP slow picking, O1 ακίνητα / πολύ slow (διαστάσεις ενδεικτικές)
+  return { example: true, floors: [{ code: "IS", name: "Ισόγειο · fast", w: 12, d: 9, lvl: 0 }, { code: "YP", name: "Υπόγειο · slow", w: 8, d: 6, lvl: -1 }, { code: "O1", name: "1ος · ακίνητα", w: 8, d: 6, lvl: 1 }], racks };
 }
 let L;
 try { L = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { L = null; }
